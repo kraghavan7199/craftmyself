@@ -942,3 +942,28 @@ BEGIN
 
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION admin.getuser(
+    p_user_id VARCHAR(36)
+)
+RETURNS TABLE (
+    user_id VARCHAR(36),
+    email VARCHAR(255),
+    name VARCHAR(255),
+    created_at TIMESTAMP,
+    last_login TIMESTAMP
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        u.id AS user_id,
+        u.email,
+        u.name,
+        u.created_at,
+        u.last_login
+    FROM admin.users u
+    WHERE u.id = p_user_id;
+END;
+$$;

@@ -18,7 +18,8 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return this.authService.user$.pipe(
+    try {
+       return this.authService.user$.pipe(
       take(1),                      
       switchMap(user => {
         if (!user) {
@@ -36,5 +37,11 @@ export class AuthInterceptor implements HttpInterceptor {
         );
       })
     );
+    }
+    catch(error) {
+      console.log(error)
+      return next.handle(req)
+    }
+   
   }
 }

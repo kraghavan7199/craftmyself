@@ -26,16 +26,11 @@ export class FirestoreService {
 
 
     createUserRecord(userId: string) {
-        try {
-        console.log('called')
-        this.httpClient.post(`${environment.localApiUrl}/user`, {userId});
-        } catch(error) {
-            console.log(error)
-        }
+       return this.httpClient.post(`${environment.localApiUrl}/user`, {userId});
     }
 
     getUserById(userId: string): Observable<User> {
-        return this.httpClient.get<User>(`${environment.apiUrl}/user/${userId}`);
+        return this.httpClient.get<User>(`${environment.localApiUrl}/user/${userId}`);
     }
 
     calculateMacros(prompt: string) {

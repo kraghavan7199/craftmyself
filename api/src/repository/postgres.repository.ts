@@ -157,8 +157,18 @@ export class PostgresRepository {
   }
 
   async getUserData(userId: string): Promise<User | null> {
-    // TODO: Implement with PostgreSQL
-    return null;
+   const result = await this.database.query(`SELECT * FROM admin.getuser($1)`, [userId])
+   if(result.rowCount) {
+    const user = result.rows[0];
+    return {
+      displayName: user.name,
+      id: userId,
+      email: user.email,
+      createdAt: user.created_at,
+      lastLoginAt: user.last_login
+    }
+   }
+   return null
   }
 
   async getUserExercisePRs(userExercisePRSearchCriteria: UserExercisePRSearchCriteria): Promise<UserExerciseSummary[]> {
@@ -174,6 +184,12 @@ export class PostgresRepository {
       max1RMPR: row.estimated_1rm,
       max1RMPRDate: row.estimated_1rm_date
     }))
+  }
+
+  async appendUser(user: User): Promise<void> {
+    const result = await this.database.query(`SELECT * FROM admin.adduser($1, $2, $3, $4, $5)`, [user.id, user.email, user.displayName,
+      user.createdAt, user.lastLoginAt
+    ])
   }
 
 

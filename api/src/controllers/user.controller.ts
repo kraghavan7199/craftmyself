@@ -6,6 +6,7 @@ import { PostgresRepository } from '../repository/postgres.repository';
 import { inject } from 'inversify';
 import { authMiddleware } from '../middlewares/AuthMiddleware';
 import { getAuth } from 'firebase-admin/auth';
+import { User } from '../domain/models/User';
 
 @controller('/user')
 export class UserController {
@@ -26,7 +27,7 @@ export class UserController {
 
             const userData = await this.postgresRepo.getUserData(userId);
             if (!userData) {
-                 res.status(404).json({ error: 'User not found' });
+                res.status(404).json({ error: 'User not found' });
             }
 
             res.status(200).json(userData);
@@ -41,7 +42,16 @@ export class UserController {
     async appendUser(@request() req: express.Request, @response() res: express.Response) {
         const userId = req.body.userId;
         const authUser = await getAuth().getUser(userId);
-        console.log(authUser)
+        const newUser: User = {
+            id: userId,
+            email: authUser.email || "",
+            displayName: authUser.displayName || undefined,
+            createdAt: new Date(),
+            lastLoginAt: new Date()
+        };
+
+        this.postgresRepo.appendUser(newUser);
+        res.status(200).json(true);
     }
 
 

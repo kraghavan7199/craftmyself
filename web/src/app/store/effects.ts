@@ -24,8 +24,7 @@ export class AppEffects {
         from(this.authService.login()).pipe(
           map((userCredential) => {
             const { uid, email, displayName } = userCredential.user;
-            console.log('here')
-            this.firestoreService.createUserRecord(uid)
+            this.firestoreService.createUserRecord(uid).subscribe();
             return AuthActions.loginSuccess({ user: { uid, email, displayName } });
           }),
         )

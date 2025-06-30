@@ -105,7 +105,6 @@ export class SettingsComponent {
   }
 
     convertFirestoreTime(date: any): any {
-      if (date._seconds && date._nanoseconds)
-        return moment(new Date(date._seconds * 1000 + date._nanoseconds / 1000000)).format('LLL');
+        return moment(date).format('LLL');
     }
 }
