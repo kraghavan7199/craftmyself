@@ -1,0 +1,195 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-surface-900">
+  <!-- Header -->
+  <header class="bg-gray-800/60 backdrop-blur-md shadow-soft p-4 top-0 z-10 border-b border-gray-700/50">
+    <div class="container mx-auto flex flex-col sm:flex-row items-center justify-between">
+      <div class="hidden md:flex items-center mb-3 sm:mb-0">
+        <div class="flex items-center space-x-2">
+          <span class="text-primary-400 font-bold text-2xl">CraftMyself</span>
+        </div>
+      </div>
+      <div class="w-full md:w-auto text-center sm:text-right">
+        <h1 class="text-2xl font-bold">Settings</h1>
+        <p class="text-primary-400 text-sm font-medium">Manage your account</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <!-- Profile Section -->
+    <div class="card-modern p-6 shadow-2xl">
+      <div class="flex items-center space-x-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center shadow-glow">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        </div>
+        <h2 class="text-xl font-semibold text-primary-400">Profile Information</h2>
+      </div>
+      
+      <div class="space-y-4">
+        @if (isLoading.profile) {
+          <div class="card-modern p-8 shadow-2xl">
+            <div class="flex flex-col items-center justify-center">
+              <div class="relative w-20 h-20">
+                <div class="absolute top-0 left-0 w-full h-full border-4 border-primary-200 opacity-20 rounded-full"></div>
+                <div
+                  class="absolute top-0 left-0 w-full h-full border-4 border-transparent border-t-primary-500 rounded-full animate-spin"
+                  style="animation-duration: 1s;"></div>
+                <div
+                  class="absolute top-1/4 left-1/4 w-1/2 h-1/2 border-4 border-transparent border-t-primary-400 rounded-full animate-spin"
+                  style="animation-duration: 0.8s; animation-direction: reverse;"></div>
+              </div>
+              <p class="mt-4 text-primary-400 font-medium">Loading Profile...</p>
+            </div>
+          </div>
+        } @else if (userProfile) {
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            
+            <!-- Display Name -->
+            <div class="space-y-1">
+              <p class="text-sm text-gray-400">Name</p>
+              <p class="text-white">{{ userProfile.displayName || 'Not set' }}</p>
+            </div>
+            
+            <!-- Email -->
+            <div class="space-y-1">
+              <p class="text-sm text-gray-400">Email</p>
+              <p class="text-white">{{ userProfile.email }}</p>
+            </div>
+          
+            
+            <!-- Created At -->
+            @if (userProfile.createdAt) {
+              <div class="space-y-1">
+                <p class="text-sm text-gray-400">Account Created</p>
+                <p class="text-white">{{ convertFirestoreTime(userProfile.createdAt) }}</p>
+              </div>
+            }
+            
+            <!-- Last Login -->
+            @if (userProfile.lastLoginAt) {
+              <div class="space-y-1">
+                <p class="text-sm text-gray-400">Last Login</p>
+                <p class="text-white">{{ convertFirestoreTime(userProfile.lastLoginAt) }}</p>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="text-center py-8">
+            <p class="text-gray-400">Unable to load profile information</p>
+            <button 
+              (click)="loadUserProfile()" 
+              class="mt-2 text-primary-400 hover:text-primary-300 text-sm underline"
+            >
+              Try Again
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Export Data Section -->
+    <div class="card-modern p-6 shadow-2xl">
+      <div class="flex items-center space-x-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 flex items-center justify-center shadow-glow">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <h2 class="text-xl font-semibold text-primary-400">Export Data</h2>
+      </div>
+      
+      <div class="space-y-4">
+        <p class="text-gray-300">
+          Download your workout history, nutrition data, and progress records.
+        </p>
+        
+        <div class="pt-4">
+          <button 
+            (click)="exportData()"
+            [disabled]="isLoading.export"
+            class="btn-primary py-4 px-8 flex items-center justify-center space-x-2"
+          >
+            <svg 
+              *ngIf="!isLoading.export" 
+              class="w-5 h-5" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <svg 
+              *ngIf="isLoading.export" 
+              class="animate-spin w-5 h-5" 
+              fill="none" 
+              viewBox="0 0 24 24"
+            >
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>{{ isLoading.export ? 'Exporting...' : 'Download Data' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sign Out Section -->
+    <div class="card-modern p-6 shadow-2xl">
+      <div class="flex items-center space-x-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-red-500 to-red-600 flex items-center justify-center shadow-glow">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </div>
+        <h2 class="text-xl font-semibold text-primary-400">Account</h2>
+      </div>
+      
+      <div class="space-y-4">
+        <p class="text-gray-300">
+          Sign out of your account securely.
+        </p>
+        
+        <div class="pt-4">
+          <button 
+            (click)="openLogoutModal()"
+            class="px-6 py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 text-red-400 hover:text-red-300 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Logout Confirmation Modal -->
+@if(showLogoutModal) {
+<div class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50" (click)="closeLogoutModal()">
+  <div class="card-modern max-w-md w-full mx-4 p-6 shadow-2xl" (click)="$event.stopPropagation()">
+    <div class="text-center">
+      <div class="w-16 h-16 bg-red-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <svg class="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        </svg>
+      </div>
+      <h3 class="text-xl font-semibold text-white mb-2">Confirm Sign Out</h3>
+      <p class="text-gray-400 mb-6">
+        Are you sure you want to sign out?
+      </p>
+      <div class="flex gap-3">
+        <button (click)="logout()" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-4 rounded-xl transition-colors duration-200">
+          Sign Out
+        </button>
+        <button (click)="closeLogoutModal()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-4 rounded-xl transition-colors duration-200">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}

@@ -1,0 +1,30 @@
+<section class="bg-gray-800 bg-opacity-50 rounded-xl p-6 shadow-lg">
+ <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+  <div class="flex items-center space-x-3">
+    <div class="w-10 h-10 rounded-xl bg-orange-600 flex items-center justify-center">
+      <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+    </div>
+    <div>
+      <h2 class="text-xl font-semibold text-orange-400">Macros Weekly Summary</h2>
+      <p class="text-gray-400 text-sm">Your average daily nutrition over the past week</p>
+    </div>
+    </div>
+      <div class="sm:text-right">
+      <label for="chartRange" class="block text-sm font-medium text-gray-300 mb-1">Select Macro Attribute</label>
+      <select [(ngModel)]="selectedMacroAttribute" (change)="updateMacroChart()" id="chartRange"
+        class="block w-48 px-3 py-2 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option *ngFor="let macro of macroAttribute; trackBy: trackByCode" [ngValue]="macro">
+          {{ macro.name }}
+        </option>
+      </select>
+    </div>
+  </div>
+  <div class="bg-gray-900 bg-opacity-50 rounded-xl p-4">
+    <div class="h-[24rem] sm:h-[28rem] lg:h-96 flex items-center justify-center">
+      <canvas #macrosChart class="w-full h-full"></canvas>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,46 @@
+{
+  "name": "craftmyself-api",
+  "version": "1.0.0",
+  "description": "CraftMyself Backend API - Node.js/Express/TypeScript",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "dev": "nodemon -L --watch 'src/**/*.ts' --exec 'ts-node' server.ts",
+    "build": "tsc"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "main": "lib/server.js",
+  "dependencies": {
+    "@google-cloud/cloud-sql-connector": "^1.8.1",
+    "@google/genai": "^0.14.1",
+    "express": "^4.18.2",
+    "firebase-admin": "^12.7.0",
+    "inversify": "^6.0.2",
+    "inversify-express-utils": "^6.4.0",
+    "inversify-inject-decorators": "^3.1.0",
+    "pg": "^8.16.0",
+    "reflect-metadata": "^0.2.1",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/pg": "^8.15.2",
+    "@types/reflect-metadata": "^0.1.0",
+    "@types/uuid": "^9.0.0",
+    "nodemon": "^2.0.15",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.9.0"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "typescript",
+    "api",
+    "fitness",
+    "workout",
+    "nutrition"
+  ],
+  "author": "CraftMyself",
+  "license": "ISC"
+}

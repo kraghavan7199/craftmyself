@@ -1,0 +1,72 @@
+# docker-compose.yml
+
+version: '3.8'
+services:
+  frontend:
+    build:
+      context: ./web
+      target: development
+    container_name: crafmyself_web
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./web:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+
+  backend:
+    build:
+      context: ./api
+      target: development
+    container_name: craftmyself_bff
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./api:/usr/src/app
+      - /usr/src/app/node_modules
+    # Add environment variables for database connection
+    environment:
+      - NODE_ENV=development
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=craftmyself_admin
+      - POSTGRES_PASSWORD=craftmyself
+      - POSTGRES_DB=craftmyselfdb
+      - GEMINI_API_KEY=AIzaSyBBmAYBloL6rUlAD3bl-zDGTjOGslvjcZU
+    # Add depends_on to ensure postgres starts first
+    depends_on:
+      - postgres
+
+  # Define the new postgres service
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres_db
+    environment:
+      - POSTGRES_USER=craftmyself_admin
+      - POSTGRES_PASSWORD=craftmyself
+      - POSTGRES_DB=craftmyselfdb
+    ports:
+      # Map port 5432 to access the DB from your host machine (e.g., with DBeaver/pgAdmin)
+      - "5432:5432"
+    volumes:
+      # Add a named volume to persist database data
+      - postgres_data:/var/lib/postgresql/data
+
+  # pgAdmin service for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin_container
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    logging:
+      driver: "none"
+
+# Define the named volume at the top level
+volumes:
+  postgres_data:

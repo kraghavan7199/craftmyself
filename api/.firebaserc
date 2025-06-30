@@ -1,0 +1,9 @@
+{
+  "projects": {
+    "default": "craftmyself-31d3d",
+    "prod": "craftmyself-prod",
+    "dev": "craftmyself-31d3d"
+  },
+  "targets": {},
+  "etags": {}
+}

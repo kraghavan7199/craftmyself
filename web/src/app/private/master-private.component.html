@@ -1,0 +1,170 @@
+<div class="fixed top-4 right-4 z-50 space-y-3">
+  <div
+    *ngFor="let t of toasts"
+    class="flex items-start max-w-sm px-4 py-3 rounded-2xl shadow-2xl text-white backdrop-blur-md border transform transition-all duration-300 ease-in-out hover:scale-105"
+    [ngClass]="{
+      'bg-emerald-500/90 border-emerald-400/30': t.type === 'success',
+      'bg-primary-500/90 border-primary-400/30': t.type === 'info',
+      'bg-red-500/90 border-red-400/30': t.type === 'error'
+    }"
+  >
+    <!-- Icon -->
+    <div class="flex-shrink-0 mr-3 mt-0.5">
+      <!-- Success Icon -->
+      <svg *ngIf="t.type === 'success'" class="w-5 h-5 text-emerald-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+      <!-- Info Icon -->
+      <svg *ngIf="t.type === 'info'" class="w-5 h-5 text-primary-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <!-- Error Icon -->
+      <svg *ngIf="t.type === 'error'" class="w-5 h-5 text-red-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </div>
+
+    <!-- Message Content -->
+    <div class="flex-1 min-w-0">
+      <p class="text-sm font-medium text-white/95 leading-relaxed">{{ t.message }}</p>
+    </div>
+
+    <!-- Close Button -->
+    <button
+      (click)="remove(t.id)"
+      class="flex-shrink-0 ml-3 p-1 rounded-lg hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-200 group"
+      aria-label="Close notification"
+    >
+      <svg class="w-4 h-4 text-white/70 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+</div>
+
+<app-loading></app-loading>
+<div class="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-surface-900 text-white">
+  <div class="flex flex-col md:flex-row">
+    <!-- Mobile top header -->
+    <div class="md:hidden bg-gray-800/80 backdrop-blur-md border-b border-gray-700/50 sticky top-0 z-10">
+      <div class="flex justify-between items-center p-3">
+        <div class="flex items-center space-x-2">
+          <span class="text-primary-400 font-bold text-xl">CraftMyself</span>
+        </div>
+        <a routerLink="/settings" class="flex items-center p-2 text-gray-400 hover:text-primary-400 transition-all duration-200" routerLinkActive="text-primary-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Desktop sidebar -->
+    <div
+      class="hidden md:block w-16 md:w-20 bg-gray-800/80 backdrop-blur-md min-h-screen flex flex-col items-center pt-6 border-r border-gray-700/50 sticky top-0">
+      <div class="flex flex-col items-center space-y-8">
+        <a routerLink="/home"
+          class="p-3 rounded-xl text-gray-400 hover:text-primary-400 transition-all duration-200 relative group hover:bg-primary-500/10"
+          routerLinkActive="bg-primary-500/20 text-primary-400 shadow-glow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+        </a>
+        <a routerLink="/analytics"
+          class="p-3 rounded-xl text-gray-400 hover:text-primary-400 transition-all duration-200 relative group hover:bg-primary-500/10"
+          routerLinkActive="bg-primary-500/20 text-primary-400 shadow-glow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </a>
+        <a routerLink="/diet" class="p-3 rounded-xl text-gray-400 hover:text-primary-400 transition-all duration-200 relative group hover:bg-primary-500/10" routerLinkActive="bg-primary-500/20 text-primary-400 shadow-glow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M6 2v6 M10 2v6 M14 2v6 M18 2v6 M6 8h12 M12 8v12" />
+          </svg>
+        </a>
+        <a routerLink="/workout-plan"
+          class="p-3 rounded-xl text-gray-400 hover:text-primary-400 transition-all duration-200 relative group hover:bg-primary-500/10"
+          routerLinkActive="bg-primary-500/20 text-primary-400 shadow-glow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </a>
+        <a routerLink="/blueprint"
+          class="p-3 rounded-xl text-gray-400 hover:text-primary-400 transition-all duration-200 relative group hover:bg-primary-500/10"
+          routerLinkActive="bg-primary-500/20 text-primary-400 shadow-glow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+          </svg>
+        </a>
+        <a routerLink="/settings"
+          class="p-3 rounded-xl text-gray-400 hover:text-primary-400 transition-all duration-200 relative group hover:bg-primary-500/10"
+          routerLinkActive="bg-primary-500/20 text-primary-400 shadow-glow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="flex-1 pb-16 md:pb-0">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+  <!-- Mobile scroll to top button -->
+  <button 
+    (click)="scrollToTop()"
+    class="md:hidden fixed bottom-20 left-4 z-30 p-3 bg-primary-500/90 hover:bg-primary-400 text-white rounded-full shadow-lg backdrop-blur-md border border-primary-400/30 transition-all duration-300 hover:scale-110 hover:shadow-xl"
+    aria-label="Scroll to top"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12" />
+    </svg>
+  </button>
+
+  <!-- Mobile bottom navigation -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 bg-gray-800/90 backdrop-blur-md border-t border-gray-700/50 z-20">
+    <div class="flex justify-around items-center py-1 px-1">
+      <a routerLink="/home" class="flex flex-col items-center p-2 min-w-0 text-gray-400 hover:text-primary-400 transition-all duration-200 rounded-xl hover:bg-primary-500/10" routerLinkActive="text-primary-400 bg-primary-500/20">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+        <span class="text-[10px] sm:text-xs mt-0.5 truncate">Home</span>
+      </a>
+      <a routerLink="/analytics" class="flex flex-col items-center p-2 min-w-0 text-gray-400 hover:text-primary-400 transition-all duration-200 rounded-xl hover:bg-primary-500/10" routerLinkActive="text-primary-400 bg-primary-500/20">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+        <span class="text-[10px] sm:text-xs mt-0.5 truncate">Stats</span>
+      </a>
+      <a routerLink="/diet" class="flex flex-col items-center p-2 min-w-0 text-gray-400 hover:text-primary-400 transition-all duration-200 rounded-xl hover:bg-primary-500/10" routerLinkActive="text-primary-400 bg-primary-500/20">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 2v6 M10 2v6 M14 2v6 M18 2v6 M6 8h12 M12 8v12" />
+        </svg>
+        <span class="text-[10px] sm:text-xs mt-0.5 truncate">Diet</span>
+      </a>
+      <a routerLink="/workout-plan" class="flex flex-col items-center p-2 min-w-0 text-gray-400 hover:text-primary-400 transition-all duration-200 rounded-xl hover:bg-primary-500/10" routerLinkActive="text-primary-400 bg-primary-500/20">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span class="text-[10px] sm:text-xs mt-0.5 truncate">Plan</span>
+      </a>
+      <a routerLink="/blueprint" class="flex flex-col items-center p-2 min-w-0 text-gray-400 hover:text-primary-400 transition-all duration-200 rounded-xl hover:bg-primary-500/10" routerLinkActive="text-primary-400 bg-primary-500/20">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+        </svg>
+        <span class="text-[10px] sm:text-xs mt-0.5 truncate">Guide</span>
+      </a>
+    </div>
+  </div>
+</div>
+

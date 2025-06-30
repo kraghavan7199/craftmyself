@@ -1,0 +1,314 @@
+<div class="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
+    <div class="container mx-auto p-4 md:p-8 max-w-6xl">
+        <app-page-header></app-page-header>
+        
+        <!-- Tab Navigation -->
+        <div class=" top-0 z-10  border-b border-slate-700 mb-8">
+            <!-- Desktop Tabs -->
+            <div class="hidden md:flex flex-wrap gap-2 py-4">
+                <button 
+                    *ngFor="let tab of tabs" 
+                    (click)="setActiveTab(tab.id)"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium"
+                    [class]="isTabActive(tab.id) ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'">
+                    <span>{{ tab.icon }}</span>
+                    <span>{{ tab.label }}</span>
+                </button>
+            </div>
+            
+            <!-- Mobile Dropdown -->
+            <div class="md:hidden py-4">
+                <div class="relative">
+                    <button 
+                        (click)="toggleMobileDropdown()"
+                        class="w-full flex items-center justify-between px-4 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors">
+                        <div class="flex items-center gap-2">
+                            <span>{{ getActiveTab().icon }}</span>
+                            <span>{{ getActiveTab().label }}</span>
+                        </div>
+                        <span class="transition-transform duration-200" [class]="isMobileDropdownOpen ? 'rotate-180' : ''">▼</span>
+                    </button>
+                    
+                    <div *ngIf="isMobileDropdownOpen" class="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-slate-700 rounded-lg shadow-lg z-20">
+                        <button 
+                            *ngFor="let tab of tabs" 
+                            (click)="setActiveTab(tab.id); toggleMobileDropdown()"
+                            class="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-slate-700 transition-colors first:rounded-t-lg last:rounded-b-lg"
+                            [class]="isTabActive(tab.id) ? 'bg-blue-600 text-white' : 'text-slate-300'">
+                            <span>{{ tab.icon }}</span>
+                            <span>{{ tab.label }}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+    
+        </div>
+
+        <!-- Content Sections -->
+        <div class="space-y-8">
+            <!-- Foundations Tab -->
+            <div *ngIf="activeTab === 'foundations'" class="fade-in">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-blue-400 mb-2">🏗️ Foundations</h2>
+                    <p class="text-slate-400">Build your mindset and understand the core principles</p>
+                </div>
+                
+                <!-- Collapsible Sections -->
+                <div class="space-y-4">
+                    <div *ngFor="let sectionId of sectionsByTab.foundations" [id]="sectionId" class="border border-slate-700 rounded-lg overflow-hidden">
+                        <button 
+                            (click)="toggleSection(sectionId)"
+                            class="w-full px-4 py-3 bg-slate-800 hover:bg-slate-750 text-left flex items-center justify-between transition-colors">
+                            <div class="flex items-center">
+                                <span class="font-medium text-slate-200">{{ sectionTitles[sectionId] }}</span>
+                            </div>
+                            <span class="text-slate-400 transition-transform duration-200"
+                                  [class]="isSectionExpanded(sectionId) ? 'rotate-180' : ''">▼</span>
+                        </button>
+                        
+                        <div *ngIf="isSectionExpanded(sectionId)" class="p-4 bg-slate-900 border-t border-slate-700">
+                            <div (click)="markSectionCompleted(sectionId)">
+                                <app-mindset *ngIf="sectionId === 'mindset'"></app-mindset>
+                                <app-reality-check *ngIf="sectionId === 'reality-check'"></app-reality-check>
+                                <app-hypertrophy-trifecta *ngIf="sectionId === 'hypertrophy-trifecta'"></app-hypertrophy-trifecta>
+                                <app-growth-cycle-visualizer *ngIf="sectionId === 'growth-cycle-visualizer'"></app-growth-cycle-visualizer>
+                                <app-mental-fortitude *ngIf="sectionId === 'mental-fortitude'"></app-mental-fortitude>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nutrition Tab -->
+            <div *ngIf="activeTab === 'nutrition'" class="fade-in">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-green-400 mb-2">🥗 Nutrition</h2>
+                    <p class="text-slate-400">Master your nutrition for optimal results</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div *ngFor="let sectionId of sectionsByTab.nutrition" [id]="sectionId" class="border border-slate-700 rounded-lg overflow-hidden">
+                        <button 
+                            (click)="toggleSection(sectionId)"
+                            class="w-full px-4 py-3 bg-slate-800 hover:bg-slate-750 text-left flex items-center justify-between transition-colors">
+                            <div class="flex items-center">
+                                <span class="font-medium text-slate-200">{{ sectionTitles[sectionId] }}</span>
+                            </div>
+                            <span class="text-slate-400 transition-transform duration-200"
+                                  [class]="isSectionExpanded(sectionId) ? 'rotate-180' : ''">▼</span>
+                        </button>
+                        
+                        <div *ngIf="isSectionExpanded(sectionId)" class="p-4 bg-slate-900 border-t border-slate-700">
+                            <div (click)="markSectionCompleted(sectionId)">
+                                <app-nutrition-blueprint *ngIf="sectionId === 'nutrition-blueprint'"></app-nutrition-blueprint>
+                                <app-advanced-nutrition-strategies *ngIf="sectionId === 'advanced-nutrition-strategies'"></app-advanced-nutrition-strategies>
+                                <app-supplement-guide *ngIf="sectionId === 'supplement-guide'"></app-supplement-guide>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Training Tab -->
+            <div *ngIf="activeTab === 'training'" class="fade-in">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-red-400 mb-2">💪 Training</h2>
+                    <p class="text-slate-400">Comprehensive training principles and programs</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div *ngFor="let sectionId of sectionsByTab.training" [id]="sectionId" class="border border-slate-700 rounded-lg overflow-hidden">
+                        <button 
+                            (click)="toggleSection(sectionId)"
+                            class="w-full px-4 py-3 bg-slate-800 hover:bg-slate-750 text-left flex items-center justify-between transition-colors">
+                            <div class="flex items-center">
+                                <span class="font-medium text-slate-200">{{ sectionTitles[sectionId] }}</span>
+                            </div>
+                            <span class="text-slate-400 transition-transform duration-200"
+                                  [class]="isSectionExpanded(sectionId) ? 'rotate-180' : ''">▼</span>
+                        </button>
+                        
+                        <div *ngIf="isSectionExpanded(sectionId)" class="p-4 bg-slate-900 border-t border-slate-700">
+                            <div (click)="markSectionCompleted(sectionId)">
+                                <app-training-pyramid *ngIf="sectionId === 'training-pyramid'"></app-training-pyramid>
+                                <app-training-principles *ngIf="sectionId === 'training-principles'"></app-training-principles>
+                                <app-exercise-technique *ngIf="sectionId === 'exercise-technique'"></app-exercise-technique>
+                                <app-assistance-lifts *ngIf="sectionId === 'assistance-lifts'"></app-assistance-lifts>
+                                <app-program-templates *ngIf="sectionId === 'program-templates'"></app-program-templates>
+                                <app-intensity-techniques *ngIf="sectionId === 'intensity-techniques'"></app-intensity-techniques>
+                                <app-periodization-models *ngIf="sectionId === 'periodization-models'"></app-periodization-models>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recovery Tab -->
+            <div *ngIf="activeTab === 'recovery'" class="fade-in">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-purple-400 mb-2">🧘 Recovery & Longevity</h2>
+                    <p class="text-slate-400">Optimize recovery and long-term health</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div *ngFor="let sectionId of sectionsByTab.recovery" [id]="sectionId" class="border border-slate-700 rounded-lg overflow-hidden">
+                        <button 
+                            (click)="toggleSection(sectionId)"
+                            class="w-full px-4 py-3 bg-slate-800 hover:bg-slate-750 text-left flex items-center justify-between transition-colors">
+                            <div class="flex items-center">
+                                <span class="font-medium text-slate-200">{{ sectionTitles[sectionId] }}</span>
+                            </div>
+                            <span class="text-slate-400 transition-transform duration-200"
+                                  [class]="isSectionExpanded(sectionId) ? 'rotate-180' : ''">▼</span>
+                        </button>
+                        
+                        <div *ngIf="isSectionExpanded(sectionId)" class="p-4 bg-slate-900 border-t border-slate-700">
+                            <div (click)="markSectionCompleted(sectionId)">
+                                <app-safety-and-warmups *ngIf="sectionId === 'safety-and-warmups'"></app-safety-and-warmups>
+                                <app-mobility-and-flexibility *ngIf="sectionId === 'mobility-and-flexibility'"></app-mobility-and-flexibility>
+                                <app-cardio-integration *ngIf="sectionId === 'cardio-integration'"></app-cardio-integration>
+                                <app-rehab-protocols *ngIf="sectionId === 'rehab-protocols'"></app-rehab-protocols>
+                                <app-active-recovery *ngIf="sectionId === 'active-recovery'"></app-active-recovery>
+                                <app-skincare-blueprint *ngIf="sectionId === 'skincare-blueprint'"></app-skincare-blueprint>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tracking Tab -->
+            <div *ngIf="activeTab === 'tracking'" class="fade-in">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-yellow-400 mb-2">📊 Tracking & Adherence</h2>
+                    <p class="text-slate-400">Monitor progress and maintain consistency</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div *ngFor="let sectionId of sectionsByTab.tracking" [id]="sectionId" class="border border-slate-700 rounded-lg overflow-hidden">
+                        <button 
+                            (click)="toggleSection(sectionId)"
+                            class="w-full px-4 py-3 bg-slate-800 hover:bg-slate-750 text-left flex items-center justify-between transition-colors">
+                            <div class="flex items-center">
+                                <span class="font-medium text-slate-200">{{ sectionTitles[sectionId] }}</span>
+                            </div>
+                            <span class="text-slate-400 transition-transform duration-200"
+                                  [class]="isSectionExpanded(sectionId) ? 'rotate-180' : ''">▼</span>
+                        </button>
+                        
+                        <div *ngIf="isSectionExpanded(sectionId)" class="p-4 bg-slate-900 border-t border-slate-700">
+                            <div (click)="markSectionCompleted(sectionId)">
+                                <app-progress-and-plateaus *ngIf="sectionId === 'progress-and-plateaus'"></app-progress-and-plateaus>
+                                <app-troubleshooting-guide *ngIf="sectionId === 'troubleshooting-guide'"></app-troubleshooting-guide>
+                                <app-performance-metrics *ngIf="sectionId === 'performance-metrics'"></app-performance-metrics>
+                                <app-behavior-and-adherence *ngIf="sectionId === 'behavior-and-adherence'"></app-behavior-and-adherence>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Specialized Tab -->
+            <div *ngIf="activeTab === 'specialized'" class="fade-in">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-2">🎯 Specialized Guides</h2>
+                    <p class="text-slate-400">Tailored approaches for specific needs</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div *ngFor="let sectionId of sectionsByTab.specialized" [id]="sectionId" class="border border-slate-700 rounded-lg overflow-hidden">
+                        <button 
+                            (click)="toggleSection(sectionId)"
+                            class="w-full px-4 py-3 bg-slate-800 hover:bg-slate-750 text-left flex items-center justify-between transition-colors">
+                            <div class="flex items-center">
+                                <span class="font-medium text-slate-200">{{ sectionTitles[sectionId] }}</span>
+                            </div>
+                            <span class="text-slate-400 transition-transform duration-200"
+                                  [class]="isSectionExpanded(sectionId) ? 'rotate-180' : ''">▼</span>
+                        </button>
+                        
+                        <div *ngIf="isSectionExpanded(sectionId)" class="p-4 bg-slate-900 border-t border-slate-700">
+                            <div (click)="markSectionCompleted(sectionId)">
+                                <app-female-factor *ngIf="sectionId === 'female-factor'"></app-female-factor>
+                                <app-age-specific-training *ngIf="sectionId === 'age-specific-training'"></app-age-specific-training>
+                                <app-lifestyle-adaptations *ngIf="sectionId === 'lifestyle-adaptations'"></app-lifestyle-adaptations>
+                                <app-home-gym-blueprint *ngIf="sectionId === 'home-gym-blueprint'"></app-home-gym-blueprint>
+                                <app-tech-integration *ngIf="sectionId === 'tech-integration'"></app-tech-integration>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Start Tab -->
+            <div *ngIf="activeTab === 'guides'" class="fade-in">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-orange-400 mb-2">🚀 Quick Start Guide</h2>
+                    <p class="text-slate-400">Get started with actionable steps</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div *ngFor="let sectionId of sectionsByTab.guides" [id]="sectionId" class="border border-slate-700 rounded-lg overflow-hidden">
+                        <button 
+                            (click)="toggleSection(sectionId)"
+                            class="w-full px-4 py-3 bg-slate-800 hover:bg-slate-750 text-left flex items-center justify-between transition-colors">
+                            <div class="flex items-center">
+                                <span class="font-medium text-slate-200">{{ sectionTitles[sectionId] }}</span>
+                            </div>
+                            <span class="text-slate-400 transition-transform duration-200"
+                                  [class]="isSectionExpanded(sectionId) ? 'rotate-180' : ''">▼</span>
+                        </button>
+                        
+                        <div *ngIf="isSectionExpanded(sectionId)" class="p-4 bg-slate-900 border-t border-slate-700">
+                            <div (click)="markSectionCompleted(sectionId)">
+                                <app-quick-start-guide *ngIf="sectionId === 'quick-start-guide'"></app-quick-start-guide>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Navigation -->
+        <div class="fixed bottom-8 right-8 z-20 flex flex-col gap-2">
+            <!-- Quick Jump Menu -->
+            <div class="relative group">
+                <button class="bg-slate-700 hover:bg-slate-600 text-white p-3 rounded-full shadow-lg transition-all duration-200 group-hover:bg-blue-600">
+                    📋
+                </button>
+                <div class="absolute bottom-full right-0 mb-2 bg-slate-800 border border-slate-600 rounded-lg p-2 min-w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                    <div class="text-xs text-slate-400 mb-2 font-medium">Quick Jump</div>
+                    <div class="space-y-1">
+                        <button 
+                            *ngFor="let section of getActiveSections()"
+                            (click)="toggleSection(section); scrollToSection(section)"
+                            class="w-full text-left px-2 py-1 text-xs rounded hover:bg-slate-700 text-slate-200 flex items-center justify-between">
+                            <span>{{ sectionTitles[section] }}</span>
+                            <span *ngIf="isSectionCompleted(section)" class="text-green-400">✓</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Back to Top Button -->
+            <button 
+                (click)="scrollToTop()"
+                class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all duration-200">
+                ↑
+            </button>
+        </div>
+
+        <app-page-footer></app-page-footer>
+    </div>
+</div>
+
+<style>
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>

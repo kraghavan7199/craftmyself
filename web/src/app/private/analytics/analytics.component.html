@@ -1,0 +1,144 @@
+<div class="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
+  <app-analytics-header></app-analytics-header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+    <div class="mb-8">
+      @if(isLoading.weeklySummary) {
+      <div class="card-modern p-8 shadow-2xl">
+        <div class="flex flex-col items-center justify-center">
+          <div class="relative w-20 h-20">
+            <div class="absolute top-0 left-0 w-full h-full border-4 border-primary-200 opacity-20 rounded-full"></div>
+            <div
+              class="absolute top-0 left-0 w-full h-full border-4 border-transparent border-t-primary-500 rounded-full animate-spin"
+              style="animation-duration: 1s;"></div>
+            <div
+              class="absolute top-1/4 left-1/4 w-1/2 h-1/2 border-4 border-transparent border-t-primary-400 rounded-full animate-spin"
+              style="animation-duration: 0.8s; animation-direction: reverse;"></div>
+          </div>
+          <p class="mt-4 text-primary-400 font-medium">Loading Weekly Summary...</p>
+        </div>
+      </div>
+      }
+      @else {
+      <app-weekly-muscle-sets
+        [weeklySummary]="weeklySummary"
+        [muscleGroups]="muscleGroups">
+      </app-weekly-muscle-sets>
+      }
+    </div>
+
+    <div class="mb-8">
+      @if(isLoading.weeklySummary) {
+      <div class="card-modern p-8 shadow-2xl">
+        <div class="flex flex-col items-center justify-center">
+          <div class="relative w-20 h-20">
+            <div class="absolute top-0 left-0 w-full h-full border-4 border-primary-200 opacity-20 rounded-full"></div>
+            <div
+              class="absolute top-0 left-0 w-full h-full border-4 border-transparent border-t-primary-500 rounded-full animate-spin"
+              style="animation-duration: 1s;"></div>
+            <div
+              class="absolute top-1/4 left-1/4 w-1/2 h-1/2 border-4 border-transparent border-t-primary-400 rounded-full animate-spin"
+              style="animation-duration: 0.8s; animation-direction: reverse;"></div>
+          </div>
+          <p class="mt-4 text-primary-400 font-medium">Loading Progressive Overload...</p>
+        </div>
+      </div>
+      }
+      @else {
+      <app-progressive-overload
+        [weeklySummary]="weeklySummary"
+        [muscleGroups]="muscleGroups"
+        [progressiveOverloadStatus]="progressiveOverloadStatus">
+      </app-progressive-overload>
+      }
+    </div>
+
+    <div class="mb-8">
+      @if(isLoading.weeklySummary) {
+      <div class="card-modern p-8 shadow-2xl">
+        <div class="flex flex-col items-center justify-center">
+          <div class="relative w-20 h-20">
+            <div class="absolute top-0 left-0 w-full h-full border-4 border-primary-200 opacity-20 rounded-full"></div>
+            <div
+              class="absolute top-0 left-0 w-full h-full border-4 border-transparent border-t-primary-500 rounded-full animate-spin"
+              style="animation-duration: 1s;"></div>
+            <div
+              class="absolute top-1/4 left-1/4 w-1/2 h-1/2 border-4 border-transparent border-t-primary-400 rounded-full animate-spin"
+              style="animation-duration: 0.8s; animation-direction: reverse;"></div>
+          </div>
+          <p class="mt-4 text-primary-400 font-medium">Loading Weekly Progress...</p>
+        </div>
+      </div>
+      }
+      @else {
+      <app-weekly-progress-chart
+        [weeklySummary]="weeklySummary"
+        [muscleGroups]="muscleGroups"
+        [(selectedMuscleGroup)]="selectedMuscleGroup">
+      </app-weekly-progress-chart>
+      }
+    </div>
+
+    <div class="mb-8">
+      @if(isLoading.weeklySummary) {
+      <div class="card-modern p-8 shadow-2xl">
+        <div class="flex flex-col items-center justify-center">
+          <div class="relative w-20 h-20">
+            <div class="absolute top-0 left-0 w-full h-full border-4 border-primary-200 opacity-20 rounded-full"></div>
+            <div
+              class="absolute top-0 left-0 w-full h-full border-4 border-transparent border-t-primary-500 rounded-full animate-spin"
+              style="animation-duration: 1s;"></div>
+            <div
+              class="absolute top-1/4 left-1/4 w-1/2 h-1/2 border-4 border-transparent border-t-primary-400 rounded-full animate-spin"
+              style="animation-duration: 0.8s; animation-direction: reverse;"></div>
+          </div>
+          <p class="mt-4 text-primary-400 font-medium">Loading Macros Chart...</p>
+        </div>
+      </div>
+      }
+      @else {
+      <app-macros-weekly-chart
+        [weeklySummary]="weeklySummary"
+        [macroAttribute]="macroAttribute"
+        [(selectedMacroAttribute)]="selectedMacroAttribute">
+      </app-macros-weekly-chart>
+      }
+    </div>
+
+    <div class="mb-8">
+
+        <app-calendar-history
+          [(activeHistoryTab)]="activeHistoryTab"
+          [userWorkoutHistory]="userWorkoutHistory"
+          [userMacrosHistory]="userMacrosHistory"
+          [muscleGroups]="muscleGroups"
+          [isLoading]="isLoading.workoutHistory || isLoading.macrosHistory"
+          (monthChanged)="onCalendarMonthChanged($event)">
+        </app-calendar-history>
+
+    </div>
+
+    <div class="mb-8">
+      @if(isLoading.exercisePRs) {
+      <div class="card-modern p-8 shadow-2xl">
+        <div class="flex flex-col items-center justify-center">
+          <div class="relative w-20 h-20">
+            <div class="absolute top-0 left-0 w-full h-full border-4 border-primary-200 opacity-20 rounded-full"></div>
+            <div
+              class="absolute top-0 left-0 w-full h-full border-4 border-transparent border-t-primary-500 rounded-full animate-spin"
+              style="animation-duration: 1s;"></div>
+            <div
+              class="absolute top-1/4 left-1/4 w-1/2 h-1/2 border-4 border-transparent border-t-primary-400 rounded-full animate-spin"
+              style="animation-duration: 0.8s; animation-direction: reverse;"></div>
+          </div>
+          <p class="mt-4 text-primary-400 font-medium">Loading Exercise PRs...</p>
+        </div>
+      </div>
+      }
+      @else {
+      <app-exercise-prs [exercisePRs]="exercisePRs"></app-exercise-prs>
+      }
+    </div>
+
+  </main>
+</div>

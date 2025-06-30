@@ -1,0 +1,94 @@
+<section class="bg-gray-800 bg-opacity-50 rounded-xl p-6 shadow-lg">
+  <!-- Header and Dropdown Row (Responsive) -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+    <!-- Icon and Header -->
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-xl font-semibold text-blue-400">Weekly Progress</h2>
+        <p class="text-gray-400 text-sm">Your performance trends</p>
+      </div>
+    </div>
+
+    <!-- Multi-Select Dropdown -->
+    <div class="sm:text-right relative">
+      <label class="block text-sm font-medium text-gray-300 mb-2">Select Muscle Groups</label>
+      
+      <!-- Control Buttons -->
+      <div class="flex gap-2 mb-3">
+        <button (click)="selectAll()" 
+          class="px-3 py-1 text-xs  bg-gradient-to-r from-primary-500/20 to-gray-600/20 hover:from-gray-500/30 hover:to-gray-600/30 border border-gray-500/30 hover:border-gray-400/50 text-gray-400 hover:text-gray-300 text-white rounded-md transition-colors duration-200">
+          Select All
+        </button>
+        <button (click)="selectNone()" 
+          class="px-3 py-1 text-xs  bg-gradient-to-r from-primary-500/20 to-gray-600/20 hover:from-gray-500/30 hover:to-gray-600/30 border border-gray-500/30 hover:border-gray-400/50 text-gray-400 hover:text-gray-300 text-white rounded-md transition-colors duration-200">
+          Select None
+        </button>
+      </div>
+
+      <!-- Multi-Select Toggle Button -->
+      <div class="relative">
+        <button (click)="toggleDropdown()" 
+          class="w-48 px-3 py-2 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-between hover:bg-gray-600 transition-colors duration-200">
+          <span class="truncate">
+            {{ getSelectedText() }}
+          </span>
+          <svg class="w-4 h-4 transform transition-transform duration-200" 
+            [class.rotate-180]="isDropdownOpen" 
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div *ngIf="isDropdownOpen" 
+          class="absolute z-50 w-48 mt-1 bg-gray-700 border border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto">
+          <div class="py-1">
+            <label *ngFor="let muscle of muscleGroups; trackBy: trackByCode" 
+              class="flex items-center px-3 py-2 hover:bg-gray-600 cursor-pointer transition-colors duration-150">
+              <input type="checkbox" 
+                [checked]="isSelected(muscle)"
+                (change)="toggleMuscleSelection(muscle)"
+                class="w-4 h-4 text-blue-600 bg-gray-800 border-gray-500 rounded focus:ring-blue-500 focus:ring-2">
+              <span class="ml-3 text-gray-100 text-sm">{{ muscle.name }}</span>
+              <div class="ml-auto w-3 h-3 rounded-full" 
+                [style.background-color]="getColorForMuscle(muscle.code)">
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart Container -->
+  <div class="bg-gray-900 bg-opacity-50 rounded-xl p-4">
+    <div class="h-[24rem] sm:h-[28rem] lg:h-96 flex items-center justify-center">
+      <!-- Empty State Message -->
+      <div *ngIf="selectedMuscleGroups.length === 0" class="text-center">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-700 flex items-center justify-center">
+          <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-300 mb-2">No Muscle Groups Selected</h3>
+        <p class="text-gray-400 text-sm max-w-sm mx-auto">
+          Select one or more muscle groups from the dropdown above to view your weekly progress charts.
+        </p>
+        <button (click)="selectAll()" 
+          class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm transition-colors duration-200">
+          Select All Muscle Groups
+        </button>
+      </div>
+      
+      <!-- Chart Canvas -->
+      <canvas *ngIf="selectedMuscleGroups.length > 0" #progressChart class="w-full h-full"></canvas>
+    </div>
+  </div>
+</section>
