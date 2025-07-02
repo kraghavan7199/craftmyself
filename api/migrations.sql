@@ -896,24 +896,19 @@ $$;
     $$;
 
 
-    CREATE OR REPLACE FUNCTION admin.adduser(
-    p_id VARCHAR(36),
-    p_email VARCHAR(255),
-    p_name VARCHAR(255),
-    p_created_at TIMESTAMP,
-    p_last_login TIMESTAMP DEFAULT NULL
-)
-RETURNS TABLE (
-    user_id VARCHAR(36),
-    email VARCHAR(255),
-    name VARCHAR(255),
-    created_at TIMESTAMP,
-    last_login TIMESTAMP,
-    was_created BOOLEAN,
-    message TEXT
-)
-LANGUAGE plpgsql
-AS $$
+   CREATE OR REPLACE FUNCTION admin.adduser(
+	p_id character varying,
+	p_email character varying,
+	p_name character varying,
+	p_created_at timestamp without time zone,
+	p_last_login timestamp without time zone DEFAULT NULL::timestamp without time zone)
+    RETURNS TABLE(user_id character varying, email character varying, name character varying, created_at timestamp without time zone, last_login timestamp without time zone, was_created boolean, message text) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
+
+AS $BODY$
 DECLARE
     v_user_exists BOOLEAN := FALSE;
 BEGIN
@@ -926,7 +921,7 @@ BEGIN
     INSERT INTO admin.users (
         id,
         email,
-        name,
+        display_name,
         created_at,
         last_login
     )
@@ -940,7 +935,7 @@ BEGIN
     END IF;
 
 END;
-$$;
+$BODY$;
 
 CREATE OR REPLACE FUNCTION admin.getuser(
     p_user_id VARCHAR(36)
