@@ -32,7 +32,7 @@ FROM nginx:alpine as production
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copy built app from build stage
-COPY --from=build /usr/src/app/dist/craftmyself /usr/share/nginx/html
+COPY --from=build /usr/src/app/dist/craftmyself/browser /usr/share/nginx/html
 
 # Change ownership of nginx directories to existing nginx user
 RUN chown -R nginx:nginx /var/cache/nginx && \
