@@ -17,6 +17,8 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
      res.status(401).json({ error: 'Missing or invalid Authorization header' });
     }
+
+    console.log(authHeader,'-**********')
     
     const idToken = authHeader!.slice(7);
     
