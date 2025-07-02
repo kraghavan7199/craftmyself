@@ -1,0 +1,35 @@
+# Optional pgAdmin service for production
+# Use this if you want pgAdmin with additional security measures
+
+version: '3.8'
+
+services:
+  pgadmin-secure:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin_secure
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
+      - PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION=True
+      - PGADMIN_CONFIG_LOGIN_BANNER="CraftMyself Production Database - Authorized Access Only"
+      - PGADMIN_CONFIG_CONSOLE_LOG_LEVEL=30
+      - PGADMIN_CONFIG_SESSION_EXPIRATION_TIME=3600
+      - PGADMIN_CONFIG_AUTHENTICATION_SOURCES=['internal']
+      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=True
+    ports:
+      - "127.0.0.1:8080:80"  # Only bind to localhost
+    volumes:
+      - pgadmin_secure_data:/var/lib/pgadmin
+      - ./pgadmin-servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - craftmyself_network
+
+volumes:
+  pgadmin_secure_data:
+
+networks:
+  craftmyself_network:
+    external: true

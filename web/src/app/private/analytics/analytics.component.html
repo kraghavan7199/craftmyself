@@ -136,7 +136,13 @@
       </div>
       }
       @else {
-      <app-exercise-prs [exercisePRs]="exercisePRs"></app-exercise-prs>
+      <app-exercise-prs 
+        [exercisePRs]="exercisePRs"
+        [totalCount]="exercisePRsTotalCount"
+        [isLoading]="isLoading.exercisePRs"
+        (pageChanged)="onExercisePRsPageChanged($event)"
+        (searchChanged)="onExercisePRsSearchChanged($event)">
+      </app-exercise-prs>
       }
     </div>
 

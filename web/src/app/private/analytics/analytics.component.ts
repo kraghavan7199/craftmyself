@@ -48,13 +48,17 @@ export class AnalyticsComponent {
   weeklySummary = [] as UserWeekSummary[];
   showAutocomplete = false;
   exercisePRs: UserExerciseSummary[] = [];
+  exercisePRsTotalCount: number = 0;
+  exercisePRsCurrentPage: number = 1;
+  exercisePRsLimit: number = 10;
+  exercisePRsSearchQuery: string = '';
   isLoading = { 
     workoutHistory: false, 
     macrosHistory: false, 
     weeklySummary: false, 
     exercisePRs: false 
   };
-  limit = 5;
+  limit = 1;
   skip = 0;
   workoutStartDate: Date | null = null;
   workoutEndDate: Date | null = null;
@@ -269,14 +273,29 @@ isCalSummary: any;
   getUserExercisePRs(): void {
     try {
       this.isLoading.exercisePRs = true;
-      this.firestoreService.getUserExercisePRs(this.currentUserId).subscribe((prs: UserExerciseSummary[]) => {
-        this.exercisePRs = prs || [];
+      const skip = (this.exercisePRsCurrentPage - 1) * this.exercisePRsLimit;
+      this.firestoreService.getUserExercisePRs(this.currentUserId, skip, this.exercisePRsLimit, this.exercisePRsSearchQuery).subscribe((response: any) => {
+        this.exercisePRs = response.data || [];
+        this.exercisePRsTotalCount = response.total || 0;
         this.isLoading.exercisePRs = false;
       });
     } catch (err) {
       this.isLoading.exercisePRs = false;
       // TODO Error Handling
     }
+  }
+
+  onExercisePRsPageChanged(event: {page: number, limit: number, searchQuery: string}): void {
+    this.exercisePRsCurrentPage = event.page;
+    this.exercisePRsLimit = event.limit;
+    this.exercisePRsSearchQuery = event.searchQuery;
+    this.getUserExercisePRs();
+  }
+
+  onExercisePRsSearchChanged(searchQuery: string): void {
+    this.exercisePRsSearchQuery = searchQuery;
+    this.exercisePRsCurrentPage = 1;
+    this.getUserExercisePRs();
   }
 
   // Helper methods to set date ranges for filtering

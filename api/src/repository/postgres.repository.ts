@@ -174,7 +174,8 @@ export class PostgresRepository {
   async getUserExercisePRs(userExercisePRSearchCriteria: UserExercisePRSearchCriteria): Promise<UserExerciseSummary[]> {
     const result = await this.database.query(`SELECT * FROM exercise.getuserexerciseprs($1, $2, $3, $4)`, [userExercisePRSearchCriteria.userId, userExercisePRSearchCriteria.exerciseId,
     userExercisePRSearchCriteria.limit, userExercisePRSearchCriteria.skip]);
-    return result.rows.map((row: any) => (<UserExerciseSummary>{
+    
+    let exercisePRs = result.rows.map((row: any) => (<UserExerciseSummary>{
       userId: row.user_id,
       exerciseName: row.exercise_name,
       maxWeightPR: row.weight_pr,
@@ -183,7 +184,17 @@ export class PostgresRepository {
       maxVolumePRDate: row.volume_pr_date,
       max1RMPR: row.estimated_1rm,
       max1RMPRDate: row.estimated_1rm_date
-    }))
+    }));
+
+    // Apply search filter if provided
+    if (userExercisePRSearchCriteria.searchQuery && userExercisePRSearchCriteria.searchQuery.trim()) {
+      const searchQuery = userExercisePRSearchCriteria.searchQuery.toLowerCase().trim();
+      exercisePRs = exercisePRs.filter((pr: any) => 
+        pr.exerciseName.toLowerCase().includes(searchQuery)
+      );
+    }
+
+    return exercisePRs;
   }
 
   async appendUser(user: User): Promise<void> {

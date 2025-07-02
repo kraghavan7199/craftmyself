@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "CraftMyself Backend API - Node.js/Express/TypeScript",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "node lib/server.js",
+    "start:ts": "ts-node server.ts",
     "dev": "nodemon -L --watch 'src/**/*.ts' --exec 'ts-node' server.ts",
     "build": "tsc"
   },

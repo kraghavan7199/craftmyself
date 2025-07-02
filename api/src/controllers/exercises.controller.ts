@@ -34,12 +34,38 @@ export class ExerciseController {
     public async getUserExercisePRs(@request() req: express.Request, @response() res: express.Response) {
         try {
             const userId = req.params.userId;
+            const skip = req.query.skip ? +req.query.skip : 0;
+            const limit = req.query.limit ? +req.query.limit : 10;
+            const searchQuery = req.query.searchQuery as string;
+            
             if (!userId) {
              res.status(400).json({ error: 'User ID is required' });
             }
 
-            const exercisePRs = await this.postgresRepo.getUserExercisePRs({userId: userId, skip: 0, limit: 10});
-            res.status(200).json(exercisePRs);
+            const searchCriteria = {
+                userId: userId, 
+                skip: skip, 
+                limit: limit,
+                searchQuery: searchQuery
+            };
+
+            const exercisePRs = await this.postgresRepo.getUserExercisePRs(searchCriteria);
+            
+            // Get total count with same search criteria but no pagination
+            const totalCountCriteria = {
+                userId: userId, 
+                skip: 0, 
+                limit: 10000,
+                searchQuery: searchQuery
+            };
+            const totalExercisePRs = await this.postgresRepo.getUserExercisePRs(totalCountCriteria);
+            
+            res.status(200).json({
+                data: exercisePRs,
+                total: totalExercisePRs.length,
+                page: Math.floor(skip / limit) + 1,
+                limit: limit
+            });
         }
         catch (error) {
             console.log(error)

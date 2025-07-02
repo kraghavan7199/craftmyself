@@ -36,13 +36,13 @@
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-700">
-        <tr *ngFor="let pr of paginatedExercisePRs" class="hover:bg-gray-750">
+        <tr *ngFor="let pr of exercisePRs" class="hover:bg-gray-750">
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{{ pr.exerciseName }}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{{ (pr.maxWeightPR | number:'1.0-2') }} kg</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{{ (pr.maxVolumePR | number:'1.0-2') }} kg</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{{ (pr.max1RMPR | number:'1.0-2') }} kg</td>
         </tr>
-        <tr *ngIf="paginatedExercisePRs.length === 0" class="text-center">
+        <tr *ngIf="exercisePRs.length === 0" class="text-center">
           <td colspan="4" class="px-6 py-8 text-sm text-gray-400">
             <div *ngIf="prSearchQuery.trim(); else noData">No exercises found matching "{{ prSearchQuery }}"</div>
             <ng-template #noData>No exercise records found</ng-template>
@@ -53,10 +53,15 @@
   </div>
 
   <!-- Pagination -->
-  <div *ngIf="totalPages > 1" class="mt-6 pt-6 border-t border-gray-700">
-    <div class="flex items-center justify-enter">
+  <div *ngIf="exercisePRs.length > 0" class="mt-6 pt-6 border-t border-gray-700">
+    <div class="flex items-center justify-between">
+      <!-- Page info -->
+      <div class="text-sm text-gray-400">
+        Showing {{ getStartIndex() }} to {{ getEndIndex() }} entries
+      </div>
+      
       <!-- Pagination controls -->
-      <div class="flex items-center space-x-1">
+      <div class="flex items-center space-x-2">
         <!-- Previous button -->
         <button
           (click)="previousPage()"
@@ -65,19 +70,15 @@
           Previous
         </button>
         
-        <!-- Page numbers -->
-        <button
-          *ngFor="let page of getVisiblePages()"
-          (click)="goToPage(page)"
-          [class]="'px-3 py-2 text-sm font-medium border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ' + 
-                  (currentPage === page ? 'text-white bg-blue-600 border-blue-600' : 'text-gray-300 bg-gray-700 border-gray-600 hover:bg-gray-600')">
-          {{ page }}
-        </button>
+        <!-- Page number -->
+        <span class="px-3 py-2 text-sm font-medium text-white bg-gray-800 border border-gray-600 rounded-md">
+          Page {{ currentPage }}
+        </span>
         
         <!-- Next button -->
         <button
           (click)="nextPage()"
-          [disabled]="currentPage === totalPages"
+          [disabled]="!hasNextPage"
           class="px-3 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-gray-600 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
           Next
         </button>

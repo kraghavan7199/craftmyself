@@ -3,4 +3,5 @@ export interface UserExercisePRSearchCriteria {
     skip: number;
     limit: number;
     exerciseId?: string;
+    searchQuery?: string;
 }

@@ -1,23 +1,44 @@
 # api/Dockerfile
 
-# Use an official Node.js runtime as a parent image
+# Development stage
 FROM node:18-alpine as development
 
-# Set the working directory in the container
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]
+
+# Production stage
+FROM node:18-alpine as production
+
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install project dependencies and nodemon globally
-RUN npm install
+# Install only production dependencies
+RUN npm ci --only=production && npm cache clean --force
 
 # Copy the rest of the application's source code
 COPY . .
 
-# Expose the port the app runs on
+# Build the application
+RUN npm run build
+
+# Create a non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nodejs -u 1001
+
+# Change ownership of the app directory to nodejs user
+RUN chown -R nodejs:nodejs /usr/src/app
+USER nodejs
+
 EXPOSE 3000
 
-# Command to run the backend with nodemon for hot-reloading
-# It will watch for changes in .ts files and execute index.ts
-CMD ["npm", "run", "dev"]
+CMD ["node", "lib/server.js"]

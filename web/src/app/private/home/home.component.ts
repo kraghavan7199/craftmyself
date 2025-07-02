@@ -1,5 +1,5 @@
-import { Component, inject } from "@angular/core";
-import { ROUTER_CONFIGURATION, RouterOutlet } from "@angular/router";
+import { Component } from "@angular/core";
+import { RouterOutlet } from "@angular/router";
 import { Store } from '@ngrx/store';
 import { FirestoreService } from "../../services/firestore.service";
 import { Exercise } from "../../shared/interfaces/Exercise";
@@ -7,8 +7,6 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { CommonModule } from "@angular/common";
 import { ExerciseEntry, UserWorkout } from "../../shared/interfaces/UserWorkout";
 import { selectUser } from "../../store/selectors";
-import { Timestamp } from "@angular/fire/firestore";
-import { Functions, httpsCallable, HttpsCallableResult } from '@angular/fire/functions';
 import { v4 as uuidv4 } from 'uuid';
 import { ToastService } from "../../services/toast.service";
 import { UserExerciseSummary } from "../../shared/interfaces/UserExerciseSummary";

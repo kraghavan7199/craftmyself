@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserExerciseSummary } from '../../../shared/interfaces/UserExerciseSummary';
@@ -10,113 +10,66 @@ import { UserExerciseSummary } from '../../../shared/interfaces/UserExerciseSumm
 })
 export class ExercisePRsComponent implements OnInit, OnChanges {
   @Input() exercisePRs: UserExerciseSummary[] = [];
+  @Input() totalCount: number = 0;
+  @Input() isLoading: boolean = false;
+  @Output() pageChanged = new EventEmitter<{page: number, limit: number, searchQuery: string}>();
+  @Output() searchChanged = new EventEmitter<string>();
   
-  filteredExercisePRs: UserExerciseSummary[] = [];
-  paginatedExercisePRs: UserExerciseSummary[] = [];
   prSearchQuery: string = '';
   
   // Pagination properties
   currentPage: number = 1;
-  itemsPerPage: number = 10;
-  totalPages: number = 0;
+  itemsPerPage: number = 1;
+  hasNextPage: boolean = false;
 
   ngOnInit(): void {
-    this.updateFilteredData();
+    this.updatePagination();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['exercisePRs']) {
-      this.updateFilteredData();
+      this.updatePagination();
     }
   }
 
   onPRSearchChange(): void {
-    this.currentPage = 1; // Reset to first page when searching
-    this.filterExercisePRs();
-  }
-
-  filterExercisePRs(): void {
-    if (!this.prSearchQuery.trim()) {
-      this.filteredExercisePRs = [...this.exercisePRs];
-    } else {
-      const query = this.prSearchQuery.toLowerCase().trim();
-      this.filteredExercisePRs = this.exercisePRs.filter(pr =>
-        pr.exerciseName.toLowerCase().includes(query)
-      );
-    }
-    this.updatePagination();
-  }
-
-  updateFilteredData(): void {
-    this.filteredExercisePRs = [...this.exercisePRs];
-    this.updatePagination();
+    this.currentPage = 1;
+    this.searchChanged.emit(this.prSearchQuery);
   }
 
   updatePagination(): void {
-    this.totalPages = Math.ceil(this.filteredExercisePRs.length / this.itemsPerPage);
-    if (this.currentPage > this.totalPages && this.totalPages > 0) {
-      this.currentPage = this.totalPages;
-    }
-    this.updatePaginatedData();
-  }
-
-  updatePaginatedData(): void {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedExercisePRs = this.filteredExercisePRs.slice(startIndex, endIndex);
-  }
-
-  goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.updatePaginatedData();
-    }
+    // Enable next button only if we received exactly the limit (indicating more data might exist)
+    this.hasNextPage = this.exercisePRs.length === this.itemsPerPage;
   }
 
   previousPage(): void {
     if (this.currentPage > 1) {
       this.currentPage--;
-      this.updatePaginatedData();
+      this.emitPageChange();
     }
   }
 
   nextPage(): void {
-    if (this.currentPage < this.totalPages) {
+    if (this.hasNextPage) {
       this.currentPage++;
-      this.updatePaginatedData();
+      this.emitPageChange();
     }
   }
 
-  getVisiblePages(): number[] {
-    const maxVisiblePages = 5;
-    const pages: number[] = [];
-    
-    if (this.totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= this.totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      const halfVisible = Math.floor(maxVisiblePages / 2);
-      let startPage = Math.max(1, this.currentPage - halfVisible);
-      let endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
-      
-      if (endPage - startPage < maxVisiblePages - 1) {
-        startPage = Math.max(1, endPage - maxVisiblePages + 1);
-      }
-      
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(i);
-      }
-    }
-    
-    return pages;
+  private emitPageChange(): void {
+    this.pageChanged.emit({
+      page: this.currentPage,
+      limit: this.itemsPerPage,
+      searchQuery: this.prSearchQuery
+    });
   }
+
 
   getStartIndex(): number {
     return (this.currentPage - 1) * this.itemsPerPage + 1;
   }
 
   getEndIndex(): number {
-    return Math.min(this.currentPage * this.itemsPerPage, this.filteredExercisePRs.length);
+    return this.getStartIndex() + this.exercisePRs.length - 1;
   }
 }

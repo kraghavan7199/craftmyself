@@ -4,7 +4,8 @@
       "Bash(docker-compose:*)",
       "Bash(docker compose:*)",
       "Bash(find:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(chmod:*)"
     ],
     "deny": []
   }

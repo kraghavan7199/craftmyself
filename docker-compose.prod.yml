@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./web
+      target: production
+    container_name: craftmyself_web_prod
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./api
+      target: production
+    container_name: craftmyself_api_prod
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres_db_prod
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./api/migrations.sql:/docker-entrypoint-initdb.d/migrations.sql
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin_prod
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
+      - PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION=True
+      - PGADMIN_CONFIG_LOGIN_BANNER="CraftMyself Production Database"
+      - PGADMIN_CONFIG_CONSOLE_LOG_LEVEL=30
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  pgadmin_data:
