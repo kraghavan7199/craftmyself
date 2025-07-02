@@ -68,6 +68,3 @@ else
 fi
 
 echo "🎉 Deployment completed!"
-echo "📊 Frontend: http://localhost or http://YOUR_DROPLET_IP"
-echo "🔧 API: http://localhost:3000 or http://YOUR_DROPLET_IP:3000"
-echo "🗄️ pgAdmin: http://localhost:8080 or http://YOUR_DROPLET_IP:8080"
