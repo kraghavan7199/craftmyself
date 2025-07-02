@@ -10,5 +10,5 @@ export const environment = {
         measurementId: "G-DTZ9LQZZWK"
     },
     // Update this with your DigitalOcean droplet IP or domain
-    apiUrl: 'http://35.200.213.57:3000'
+    apiUrl: 'https://35.200.213.57:3000'
 }
