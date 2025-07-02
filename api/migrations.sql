@@ -4,7 +4,6 @@ CREATE SCHEMA summary;
 CREATE SCHEMA admin;
 CREATE SCHEMA macros;
 
-
 CREATE TABLE IF NOT EXISTS exercise.exercises (
     id VARCHAR(36) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -297,7 +296,7 @@ BEGIN
         PERFORM exercise.updateexercisepr(p_user_id, r_exercise.exercise_id);
     END LOOP;
 
-    PERFORM summary.updateWeeklySummary(p_user_id)
+    PERFORM summary.updateWeeklySummary(p_user_id);
 
     RETURN QUERY
     SELECT v_workout_id,v_updated_at;
@@ -517,7 +516,7 @@ RETURNS TABLE (
     last_calculated TIMESTAMP
 )
 LANGUAGE plpgsql
-AS $
+AS $$
 BEGIN
     RETURN QUERY
     SELECT 
