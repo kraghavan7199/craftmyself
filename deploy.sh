@@ -25,7 +25,7 @@ fi
 
 # Stop existing containers
 echo "🛑 Stopping existing containers..."
-docker-compose -f docker-compose.prod.yml -f docker-compose.pgadmin.yml down
+docker-compose -f docker-compose.prod.yml down
 
 # Remove old images to free up space
 echo "🧹 Cleaning up old images..."
@@ -33,7 +33,7 @@ docker system prune -f
 
 # Build and start production containers
 echo "🏗️ Building and starting production containers..."
-docker-compose -f docker-compose.prod.yml -f docker-compose.pgadmin.yml up -d --build
+docker-compose -f docker-compose.prod.yml up -d --build
 
 # Wait for services to be ready
 echo "⏳ Waiting for services to start..."
@@ -41,7 +41,7 @@ sleep 30
 
 # Check if services are running
 echo "✅ Checking service status..."
-docker-compose -f docker-compose.prod.yml -f docker-compose.pgadmin.yml ps
+docker-compose -f docker-compose.prod.yml ps
 
 # Test API endpoint
 echo "🔍 Testing API endpoint..."
