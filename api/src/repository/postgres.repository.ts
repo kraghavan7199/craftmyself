@@ -197,10 +197,11 @@ export class PostgresRepository {
     return exercisePRs;
   }
 
-  async appendUser(user: User): Promise<void> {
+  async appendUser(user: User): Promise<boolean> {
     const result = await this.database.query(`SELECT * FROM admin.adduser($1, $2, $3, $4, $5)`, [user.id, user.email, user.displayName,
       user.createdAt, user.lastLoginAt
-    ])
+    ]);
+    return true
   }
 
 

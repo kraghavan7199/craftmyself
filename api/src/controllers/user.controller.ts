@@ -50,7 +50,7 @@ export class UserController {
             lastLoginAt: new Date()
         };
 
-        this.postgresRepo.appendUser(newUser);
+        await this.postgresRepo.appendUser(newUser);
         res.status(200).json(true);
     }
 
