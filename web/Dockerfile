@@ -20,7 +20,7 @@ FROM node:18-alpine as build
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-RUN npm install -g @angular/cli && npm ci --only=production
+RUN npm install -g @angular/cli && npm ci
 
 COPY . .
 RUN ng build --configuration=production
