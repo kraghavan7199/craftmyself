@@ -22,14 +22,17 @@ WORKDIR /usr/src/app
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install only production dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install all dependencies (including dev) for building
+RUN npm ci && npm cache clean --force
 
 # Copy the rest of the application's source code
 COPY . .
 
 # Build the application
 RUN npm run build
+
+# Remove dev dependencies after build
+RUN npm prune --production
 
 # Create a non-root user
 RUN addgroup -g 1001 -S nodejs
