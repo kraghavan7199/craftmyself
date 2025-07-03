@@ -938,26 +938,23 @@ END;
 $BODY$;
 
 CREATE OR REPLACE FUNCTION admin.getuser(
-    p_user_id VARCHAR(36)
-)
-RETURNS TABLE (
-    user_id VARCHAR(36),
-    email VARCHAR(255),
-    name VARCHAR(255),
-    created_at TIMESTAMP,
-    last_login TIMESTAMP
-)
-LANGUAGE plpgsql
-AS $$
+	p_user_id character varying)
+    RETURNS TABLE(user_id character varying, email character varying, name character varying, created_at timestamp without time zone, last_login timestamp without time zone) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
+
+AS $BODY$
 BEGIN
     RETURN QUERY
     SELECT 
         u.id AS user_id,
         u.email,
-        u.name,
+        u.display_name,
         u.created_at,
         u.last_login
     FROM admin.users u
     WHERE u.id = p_user_id;
 END;
-$$;
+$BODY$;

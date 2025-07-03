@@ -39,6 +39,7 @@ export class PostgresRepository {
 
 
   async getUserWorkouts(userWorkoutSearchCriteria: UserWorkoutSearchCriteria): Promise<UserWorkout[]> {
+    console.log(userWorkoutSearchCriteria)
     const result = await this.database.query(`SELECT * FROM workout.getuserworkouts($1, $2, $3, $4, $5, $6)`, [userWorkoutSearchCriteria.userId,
     userWorkoutSearchCriteria.date, userWorkoutSearchCriteria.weekStart, userWorkoutSearchCriteria.weekEnd, userWorkoutSearchCriteria.limit,
     userWorkoutSearchCriteria.skip
