@@ -121,13 +121,9 @@ BEGIN
         SELECT * 
         FROM workout.user_workouts uw
         WHERE uw.user_id = p_user_id
-            AND (
-                (p_date IS NOT NULL AND DATE(uw.created_at) = DATE(p_date))
-                OR (p_week_start IS NOT NULL AND p_week_end IS NOT NULL 
-                    AND DATE(uw.created_at) >= p_week_start 
-                    AND DATE(uw.created_at) <= p_week_end)
-                OR (p_date IS NULL AND p_week_start IS NULL AND p_week_end IS NULL)
-            )
+           AND ((p_date IS NULL) OR (DATE(uw.created_at) = DATE(p_date)))
+    AND ((p_week_start IS NULL) OR (DATE(uw.created_at) >= DATE(p_week_start)))
+    AND ((p_week_end IS NULL) OR (DATE(uw.created_at) <= DATE(p_week_end)))
          ORDER BY uw.created_at DESC
         LIMIT CASE WHEN p_limit IS NOT NULL THEN p_limit ELSE NULL END
         OFFSET p_skip

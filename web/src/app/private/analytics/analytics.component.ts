@@ -58,7 +58,7 @@ export class AnalyticsComponent {
     weeklySummary: false, 
     exercisePRs: false 
   };
-  limit = 1;
+  limit = 31;
   skip = 0;
   workoutStartDate: Date | null = null;
   workoutEndDate: Date | null = null;
