@@ -299,13 +299,13 @@ BEGIN
 
 END;
 $BODY$;
-
-CREATE OR REPLACE FUNCTION summary.updateWeeklySummary(
-    p_user_id VARCHAR(36)
-)
-RETURNS VOID
-LANGUAGE plpgsql
-AS $$
+CREATE OR REPLACE FUNCTION summary.updateweeklysummary(
+	p_user_id character varying)
+    RETURNS void
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
 DECLARE
     v_current_week_start DATE;
     v_current_week_end DATE;
@@ -352,7 +352,9 @@ BEGIN
                 'shoulders', COALESCE(SUM((muscle_group_volumes->>'shoulders')::NUMERIC), 0),
                 'biceps', COALESCE(SUM((muscle_group_volumes->>'biceps')::NUMERIC), 0),
                 'triceps', COALESCE(SUM((muscle_group_volumes->>'triceps')::NUMERIC), 0),
-                'core', COALESCE(SUM((muscle_group_volumes->>'core')::NUMERIC), 0)
+                'forearms', COALESCE(SUM((muscle_group_volumes->>'forearms')::NUMERIC), 0),
+				'core', COALESCE(SUM((muscle_group_volumes->>'core')::NUMERIC), 0)	
+				
             ) AS total_volumes
         FROM weekly_workout_data
     )
@@ -382,7 +384,7 @@ BEGIN
   
 
 END;
-$$;
+$BODY$;
 
 
 CREATE OR REPLACE FUNCTION exercise.updateexercisepr(
