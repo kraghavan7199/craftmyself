@@ -5,7 +5,8 @@
       "Bash(docker compose:*)",
       "Bash(find:*)",
       "Bash(rg:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": []
   }
