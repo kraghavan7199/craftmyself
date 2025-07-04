@@ -54,12 +54,7 @@
 
   <!-- Pagination -->
   <div *ngIf="exercisePRs.length > 0" class="mt-6 pt-6 border-t border-gray-700">
-    <div class="flex items-center justify-between">
-      <!-- Page info -->
-      <div class="text-sm text-gray-400">
-        Showing {{ getStartIndex() }} to {{ getEndIndex() }} entries
-      </div>
-      
+    <div class="flex items-center justify-end">
       <!-- Pagination controls -->
       <div class="flex items-center space-x-2">
         <!-- Previous button -->

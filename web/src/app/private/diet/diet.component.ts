@@ -152,10 +152,8 @@ export class DietComponent {
 
   deleteMacro(macro: any) {
     try {
-      console.log(this.dailyMacros)
       this.dailyMacros = this.dailyMacros.filter((item: any) => item.id !== macro.id);
       this.todaysMacrosData.macros = this.dailyMacros;
-      console.log(this.todaysMacrosData)
       if (!this.todaysMacrosData.macros.length) {
         this.firestoreService.deleteUserMacros(this.todaysMacrosData.id).subscribe(_ => {
           this.todaysMacrosData = {};

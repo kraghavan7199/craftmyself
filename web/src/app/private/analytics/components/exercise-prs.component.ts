@@ -10,8 +10,6 @@ import { UserExerciseSummary } from '../../../shared/interfaces/UserExerciseSumm
 })
 export class ExercisePRsComponent implements OnInit, OnChanges {
   @Input() exercisePRs: UserExerciseSummary[] = [];
-  @Input() totalCount: number = 0;
-  @Input() isLoading: boolean = false;
   @Output() pageChanged = new EventEmitter<{page: number, limit: number, searchQuery: string}>();
   @Output() searchChanged = new EventEmitter<string>();
   
@@ -19,14 +17,13 @@ export class ExercisePRsComponent implements OnInit, OnChanges {
   
   // Pagination properties
   currentPage: number = 1;
-  itemsPerPage: number = 1;
+  itemsPerPage: number = 10;
   hasNextPage: boolean = false;
 
   ngOnInit(): void {
     this.updatePagination();
   }
-
-  ngOnChanges(changes: SimpleChanges): void {
+    ngOnChanges(changes: SimpleChanges): void {
     if (changes['exercisePRs']) {
       this.updatePagination();
     }
@@ -38,7 +35,6 @@ export class ExercisePRsComponent implements OnInit, OnChanges {
   }
 
   updatePagination(): void {
-    // Enable next button only if we received exactly the limit (indicating more data might exist)
     this.hasNextPage = this.exercisePRs.length === this.itemsPerPage;
   }
 
@@ -51,7 +47,7 @@ export class ExercisePRsComponent implements OnInit, OnChanges {
 
   nextPage(): void {
     if (this.hasNextPage) {
-      this.currentPage++;
+      this.currentPage = this.currentPage + 1;
       this.emitPageChange();
     }
   }
@@ -64,12 +60,4 @@ export class ExercisePRsComponent implements OnInit, OnChanges {
     });
   }
 
-
-  getStartIndex(): number {
-    return (this.currentPage - 1) * this.itemsPerPage + 1;
-  }
-
-  getEndIndex(): number {
-    return this.getStartIndex() + this.exercisePRs.length - 1;
-  }
 }
