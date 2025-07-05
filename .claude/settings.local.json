@@ -6,7 +6,9 @@
       "Bash(find:*)",
       "Bash(rg:*)",
       "Bash(chmod:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(npm install:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

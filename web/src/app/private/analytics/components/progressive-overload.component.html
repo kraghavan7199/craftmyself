@@ -1,22 +1,22 @@
-<section class="bg-gray-800 bg-opacity-50 rounded-xl p-6 shadow-lg">
+<section class="bg-card/50 rounded-xl p-6 shadow-lg border border-border">
   <div class="flex items-center space-x-3 mb-6">
-    <div class="w-10 h-10 rounded-xl bg-yellow-600 flex items-center justify-center">
-      <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+      <svg class="w-5 h-5 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M13 10V3L4 14h7v7l9-11h-7z" />
       </svg>
     </div>
     <div>
-      <h2 class="text-xl font-semibold text-yellow-400">Progressive Overload</h2>
-      <p class="text-gray-400 text-sm">Current week vs previous week comparison</p>
+      <h2 class="text-xl font-semibold text-primary">Progressive Overload</h2>
+      <p class="text-muted-foreground text-sm">Current week vs previous week comparison</p>
     </div>
   </div>
 
   <div *ngIf="weeklySummary.length >= 2; else noProgressiveOverloadData">
     <!-- Muscle Group Breakdown -->
-    <div class="bg-gray-700 bg-opacity-50 rounded-xl overflow-hidden">
+    <div class="bg-muted/50 rounded-xl overflow-hidden">
       <div *ngFor="let muscle of muscleGroups; let isLast = last" 
-           [class]="'flex items-center justify-between p-4 hover:bg-gray-800 hover:bg-opacity-30 transition-colors' + (isLast ? '' : ' border-b border-gray-600')">
+           [class]="'flex items-center justify-between p-4 hover:bg-muted/30 transition-colors' + (isLast ? '' : ' border-b border-border')">
         
         <!-- Progress Bar Style for Non-New Progress -->
         <div *ngIf="getProgressiveOverloadForMuscle(muscle.code).status !== 'new' && getProgressiveOverloadForMuscle(muscle.code).status !== 'none'" 
@@ -29,7 +29,7 @@
                }"></div>
           <div class="flex-1">
             <div class="flex items-center justify-between mb-1">
-              <span class="text-white font-medium">{{ muscle.name }}</span>
+              <span class="text-foreground font-medium">{{ muscle.name }}</span>
               <span class="text-sm font-bold"
                     [ngClass]="{
                       'text-green-400': getProgressiveOverloadForMuscle(muscle.code).percentage > 0,
@@ -40,17 +40,17 @@
               </span>
             </div>
             <div class="flex items-center space-x-3">
-              <div class="flex-1 bg-gray-600 rounded-full h-1.5">
+              <div class="flex-1 bg-muted rounded-full h-1.5">
                 <div class="h-1.5 rounded-full transition-all duration-300"
                      [ngClass]="{
-                       'bg-green-500': getProgressiveOverloadForMuscle(muscle.code).status === 'increased',
-                       'bg-gray-500': getProgressiveOverloadForMuscle(muscle.code).status === 'maintained',
-                       'bg-red-500': getProgressiveOverloadForMuscle(muscle.code).status === 'decreased'
+                       'bg-green-400': getProgressiveOverloadForMuscle(muscle.code).status === 'increased',
+                       'bg-red-400': getProgressiveOverloadForMuscle(muscle.code).status === 'maintained',
+                       'bg-gray-400': getProgressiveOverloadForMuscle(muscle.code).status === 'decreased'
                      }"
                      [style.width.%]="Math.min(Math.abs(getProgressiveOverloadForMuscle(muscle.code).propotionalChange), 100)">
                 </div>
               </div>
-              <span class="text-xs text-gray-400 min-w-0">
+              <span class="text-xs text-muted-foreground min-w-0">
                 {{ getMuscleCodeValue(weeklySummary[weeklySummary.length -1], muscle.code) }}/{{ getMuscleCodeValue(weeklySummary[weeklySummary.length - 2], muscle.code) }} kg
               </span>
             </div>
@@ -60,17 +60,17 @@
         <!-- New Muscle Group Style -->
         <div *ngIf="getProgressiveOverloadForMuscle(muscle.code).status === 'new'" 
              class="flex items-center space-x-4 flex-1">
-          <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+          <div class="w-3 h-3 rounded-full bg-primary"></div>
           <div class="flex-1">
             <div class="flex items-center justify-between mb-1">
-              <span class="text-white font-medium">{{ muscle.name }}</span>
-              <span class="text-sm font-bold text-blue-400">New!</span>
+              <span class="text-foreground font-medium">{{ muscle.name }}</span>
+              <span class="text-sm font-bold text-primary">New!</span>
             </div>
             <div class="flex items-center space-x-3">
-              <div class="flex-1 bg-gray-600 rounded-full h-1.5">
-                <div class="bg-blue-500 h-1.5 rounded-full transition-all duration-300" style="width: 100%"></div>
+              <div class="flex-1 bg-muted rounded-full h-1.5">
+                <div class="bg-primary h-1.5 rounded-full transition-all duration-300" style="width: 100%"></div>
               </div>
-              <span class="text-xs text-gray-400 min-w-0">
+              <span class="text-xs text-muted-foreground min-w-0">
                 {{ getProgressiveOverloadForMuscle(muscle.code).change | number:'1.0-0' }} kg total
               </span>
             </div>
@@ -81,25 +81,25 @@
         <div *ngIf="getProgressiveOverloadForMuscle(muscle.code).status === 'none'" 
              class="flex items-center justify-between w-full">
           <div class="flex items-center space-x-3">
-            <div class="w-3 h-3 rounded-full bg-gray-500"></div>
-            <span class="text-white font-medium">{{ muscle.name }}</span>
+            <div class="w-3 h-3 rounded-full bg-muted"></div>
+            <span class="text-foreground font-medium">{{ muscle.name }}</span>
           </div>
-          <span class="text-sm font-bold text-gray-400">No Data</span>
+          <span class="text-sm font-bold text-muted-foreground">No Data</span>
         </div>
       </div>
     </div>
   </div>
 
   <ng-template #noProgressiveOverloadData>
-    <div class="bg-gray-700 bg-opacity-30 rounded-xl p-12 text-center">
-      <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gray-700 flex items-center justify-center">
-        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-muted/30 rounded-xl p-12 text-center">
+      <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-muted flex items-center justify-center">
+        <svg class="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
       </div>
-      <h3 class="text-xl font-semibold text-white mb-2">Need more data</h3>
-      <p class="text-gray-300 mb-1">At least 2 weeks of workout data needed to track progressive overload</p>
+      <h3 class="text-xl font-semibold text-foreground mb-2">Need more data</h3>
+      <p class="text-muted-foreground mb-1">At least 2 weeks of workout data needed to track progressive overload</p>
     </div>
   </ng-template>
 </section>
