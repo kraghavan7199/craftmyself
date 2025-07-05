@@ -6,6 +6,7 @@ const TYPES = {
     AnalysisService: Symbol.for('AnalysisService'),
     WorkoutService: Symbol.for('WorkoutService'),
     Database: Symbol.for('Database'),
-    MacrosService: Symbol.for('MacrosService')
+    MacrosService: Symbol.for('MacrosService'),
+    FirestoreToPostgresTransferWorker: Symbol.for('FirestoreToPostgresTransferWorker')
 };
 export default TYPES;

@@ -11,6 +11,7 @@ import {container} from "./src/config/inversify.config";
 import { Database } from "./src/config/Database";
 import TYPES from "./src/config/types";
 import { cert, initializeApp } from 'firebase-admin/app';
+import { FirestoreToPostgresTransferWorker } from "./src/domain/workers/FirestoreToPostgresTransferWorker";
 
 const server = new InversifyExpressServer(container);
 
@@ -42,7 +43,9 @@ server.setConfig((app) => {
 });
 
 
-initializeApp()
+initializeApp();
+
+
 
 
 const app = server.build();
@@ -53,6 +56,9 @@ async function startServer() {
     try {
         const database = container.get<Database>(TYPES.Database);
         await database.connect();
+
+        const data = container.get<FirestoreToPostgresTransferWorker>(TYPES.FirestoreToPostgresTransferWorker);
+        await data.transfer();
         
         app.listen(PORT, () => {
             console.log(`🚀 Server is running on port ${PORT}`);
