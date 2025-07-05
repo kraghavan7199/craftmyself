@@ -32,6 +32,7 @@ export class FirestoreToPostgresTransferWorker {
             workoutData.exercises = workoutData.exercises.map((exercise: any) => {
                 const exerciseEntry = exerciseData.find((ex: any) => ex.id === exercise.exerciseId);
                 exercise.muscleGroupCode = exerciseEntry?.exercise.muscleGroupCode; // Default to 'unknown' if not found
+                return exercise
             })
             console.log(workoutData)
             await this.workoutService.upsetWorkoutData(<UserWorkout>workoutData)
