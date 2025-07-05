@@ -13,7 +13,6 @@ import { WorkoutService } from "../domain/services/WorkoutService";
 import { Database } from "./Database";
 import { IMacrosService } from "../domain/services/IMacrosService";
 import { MacrosService } from "../domain/services/MacrosService";
-import { FirestoreToPostgresTransferWorker } from "../domain/workers/FirestoreToPostgresTransferWorker";
 
 
 const container = new Container();
@@ -27,6 +26,5 @@ container.bind<IAnalysisService>(TYPES.AnalysisService).to(AnalysisService);
 container.bind<IWorkoutService>(TYPES.WorkoutService).to(WorkoutService);
 container.bind<IMacrosService>(TYPES.MacrosService).to(MacrosService);
 container.bind<Database>(TYPES.Database).to(Database).inSingletonScope();
-container.bind<FirestoreToPostgresTransferWorker>(TYPES.FirestoreToPostgresTransferWorker).to(FirestoreToPostgresTransferWorker);
 
  export {container, lazyInject}
