@@ -21,10 +21,18 @@ export class FirestoreToPostgresTransferWorker {
 
 
     async transfer() {
+        const exercises = await this.db.collection('exercises').get();
+        const exerciseData = exercises.docs.map(doc => {
+            const exercise = doc.data() as Exercise;
+            return {id: doc.id, exercise}})
         const data = await this.db.collection('workoutSummaries').get();
         data.forEach(async doc => {
             const workoutData = doc.data();
             workoutData.date = this.convertSecondsAndNanosecondsToDate(workoutData.date._seconds, workoutData.date._nanoseconds)
+            workoutData.exercises = workoutData.exercises.map((exercise: any) => {
+                const exerciseEntry = exerciseData.find((ex: any) => ex.id === exercise.exerciseId);
+                exercise.muscleGroupCode = exerciseEntry?.exercise.muscleGroupCode; // Default to 'unknown' if not found
+            })
             await this.workoutService.upsetWorkoutData(<UserWorkout>workoutData)
         })
         
