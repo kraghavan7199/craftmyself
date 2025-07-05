@@ -267,15 +267,22 @@ export class WorkoutPlanComponent {
   }
 
   saveWorkoutPlan() {
+    // Convert weekDays to the format expected by the API
+    const weekDaysData = this.weekDays
+      .filter(day => day.exercises.length > 0) // Only include days with exercises
+      .map(day => ({
+        date: day.date,
+        exercises: day.exercises.map(exercise => ({
+          exerciseId: exercise.exerciseId,
+          exerciseName: exercise.exerciseName
+        }))
+      }));
+
     const workoutPlan = {
+      userId: this.currentUserId,
       weekStart: this.currentWeekStart,
       weekEnd: this.currentWeekEnd,
-      userId: this.currentUserId,
-      weekDays: this.weekDays.map(day => ({
-        name: day.name,
-        date: day.date,
-        exercises: day.exercises
-      }))
+      weekDays: weekDaysData
     };
 
     this.firestoreService.upsertWeeklyPlan(workoutPlan).subscribe(res => {
@@ -315,16 +322,29 @@ export class WorkoutPlanComponent {
 
   getWeeklyPlan(): any {
     this.isLoading.weeklyPlan = true;
-    return this.firestoreService.getWeeklyPlan(this.currentUserId, this.currentWeekStart).subscribe(plan => {
-      if (plan && plan.weekDays) {
-        this.weekDays = plan.weekDays.map((day: any) => ({
-          ...day,
-          date: new Date(day.date),
-          isToday: new Date(day.date).toDateString() === new Date().toDateString()
-        }));
-      } else {
-        this.weekDays.forEach(day => day.exercises = []);
+    return this.firestoreService.getWeeklyPlan(this.currentUserId, this.currentWeekStart).subscribe(planData => {
+      // Reset all exercises first
+      this.weekDays.forEach(day => day.exercises = []);
+      
+      if (planData && Array.isArray(planData)) {
+        // Map the API response to our weekDays structure
+        planData.forEach((dayPlan: any) => {
+          const workoutDate = new Date(dayPlan.workoutDate);
+          const dayOfWeek = workoutDate.getDay();
+          const dayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert Sunday=0 to index 6
+          
+          if (dayIndex >= 0 && dayIndex < this.weekDays.length) {
+            this.weekDays[dayIndex].exercises = dayPlan.exercises.map((exercise: any) => ({
+              id: `${exercise.exerciseId}-${Date.now()}`,
+              exerciseId: exercise.exerciseId,
+              exerciseName: exercise.exerciseName
+            }));
+          }
+        });
       }
+      
+      // Update isToday flags
+      this.setTodayHighlight();
       this.isLoading.weeklyPlan = false;
     });
   }

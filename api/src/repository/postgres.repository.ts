@@ -66,7 +66,7 @@ export class PostgresRepository {
   async upsertMacros(macros: UserMacros): Promise<string> {
     try {
       await this.database.query(`SELECT * FROM macros.addmacros($1, $2, $3, $4, $5)`, [macros.id, macros.userId, macros.date, JSON.stringify(macros.macros),
-         JSON.stringify(macros.totals)])
+      JSON.stringify(macros.totals)])
       return macros.id
     }
     catch (error) {
@@ -103,7 +103,7 @@ export class PostgresRepository {
   }
 
   async getCurrentDayMacros(userId: string): Promise<UserMacros | null> {
-  const criteria = <UserMacrosSearchCriteria>{ userId: userId, date: new Date() };
+    const criteria = <UserMacrosSearchCriteria>{ userId: userId, date: new Date() };
     const macros = await this.getUserMacros(criteria);
     return macros.length ? macros[0] : null;
   }
@@ -122,7 +122,7 @@ export class PostgresRepository {
   }
 
   async deleteUserMacros(macrosId: string): Promise<boolean> {
-       try {
+    try {
       await this.database.query(`SELECT * FROM macros.deletemacros($1)`, [macrosId]);
       return true;
     } catch (error) {
@@ -132,48 +132,48 @@ export class PostgresRepository {
 
   async upsertWeeklyWorkoutPlan(payload: any): Promise<string> {
     try {
-      const result = await this.database.query(`SELECT * FROM workout.upsertweeklyplan($1, $2, $3, $4 )`, [payload.userId, JSON.stringify(payload.weekDays),
-        payload.weekStart, payload.weekEnd]);
+      const result = await this.database.query(`SELECT workout.upsert_weekly_workout_plan($1, $2)`, [
+        payload.userId, 
+        JSON.stringify(payload.weekDays)
+      ]);
       return 'Complete'
-    } catch(error) {
-      return 'ERRROR'
+    } catch (error) {
+      console.error('Error upserting weekly workout plan:', error);
+      return 'ERROR'
     }
   }
 
   async getWeeklyWorkoutPlan(date: Date, userId: string): Promise<any> {
-    const result =  await this.database.query(`SELECT * FROM workout.getweeklyplan($1, $2)`,[userId, date])
-    if(result.rowCount) {
-      const weeklyPlan = result.rows[0];
-      return {
-        userId: weeklyPlan.user_id,
-        weekDays: weeklyPlan.week_days,
-        weekStart: weeklyPlan.week_start,
-        weekEnd: weeklyPlan.week_end
-      }
+    const result = await this.database.query(`SELECT * FROM workout.get_weekly_workout_plans($1, $2)`, [userId, date])
+    if (result.rowCount) {
+      return result.rows.map((row: any) => ({
+        workoutDate: row.workout_date,
+        exercises: row.exercises,
+      }));
     }
 
     return [];
   }
 
   async getUserData(userId: string): Promise<User | null> {
-   const result = await this.database.query(`SELECT * FROM admin.getuser($1)`, [userId])
-   if(result.rowCount) {
-    const user = result.rows[0];
-    return {
-      displayName: user.name,
-      id: userId,
-      email: user.email,
-      createdAt: user.created_at,
-      lastLoginAt: user.last_login
+    const result = await this.database.query(`SELECT * FROM admin.getuser($1)`, [userId])
+    if (result.rowCount) {
+      const user = result.rows[0];
+      return {
+        displayName: user.name,
+        id: userId,
+        email: user.email,
+        createdAt: user.created_at,
+        lastLoginAt: user.last_login
+      }
     }
-   }
-   return null
+    return null
   }
 
   async getUserExercisePRs(userExercisePRSearchCriteria: UserExercisePRSearchCriteria): Promise<UserExerciseSummary[]> {
     const result = await this.database.query(`SELECT * FROM exercise.getuserexerciseprs($1, $2, $3, $4)`, [userExercisePRSearchCriteria.userId, userExercisePRSearchCriteria.exerciseId,
     userExercisePRSearchCriteria.limit, userExercisePRSearchCriteria.skip]);
-    
+
     let exercisePRs = result.rows.map((row: any) => (<UserExerciseSummary>{
       userId: row.user_id,
       exerciseName: row.exercise_name,
@@ -188,7 +188,7 @@ export class PostgresRepository {
     // Apply search filter if provided
     if (userExercisePRSearchCriteria.searchQuery && userExercisePRSearchCriteria.searchQuery.trim()) {
       const searchQuery = userExercisePRSearchCriteria.searchQuery.toLowerCase().trim();
-      exercisePRs = exercisePRs.filter((pr: any) => 
+      exercisePRs = exercisePRs.filter((pr: any) =>
         pr.exerciseName.toLowerCase().includes(searchQuery)
       );
     }
@@ -198,9 +198,17 @@ export class PostgresRepository {
 
   async appendUser(user: User): Promise<boolean> {
     const result = await this.database.query(`SELECT * FROM admin.adduser($1, $2, $3, $4, $5)`, [user.id, user.email, user.displayName,
-      user.createdAt, user.lastLoginAt
+    user.createdAt, user.lastLoginAt
     ]);
     return true
+  }
+
+  async getUsersWithPlannedExercises(date: Date): Promise<any[]> {
+    const result = await this.database.query(`SELECT * FROM workout.get_users_with_planned_exercises($1)`, [date]);
+    return result.rows.map((row: any) => ({
+      userId: row.user_id,
+      exercises: row.exercises
+    }));
   }
 
 

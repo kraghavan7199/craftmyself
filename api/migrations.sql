@@ -89,16 +89,22 @@ CREATE TABLE IF NOT EXISTS macros.user_daily_macros (
     CONSTRAINT unique_user_date UNIQUE (user_id, date)
 );
 
-CREATE TABLE IF NOT EXISTS workout.user_weekly_plans (
+CREATE TABLE IF NOT EXISTS workout.user_workout_plans (
     id SERIAL PRIMARY KEY,
     user_id VARCHAR(36) NOT NULL,
-    week_start DATE NOT NULL,
-    week_end DATE NOT NULL,
-    week_days JSONB NOT NULL,
+    date DATE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES admin.users(id),
-    CONSTRAINT unique_user_week_plan UNIQUE (user_id, week_start)
+    CONSTRAINT unique_user_date_plan UNIQUE (user_id, date)
+);
+
+CREATE TABLE IF NOT EXISTS workout.user_workout_plan_exercises (
+    id SERIAL PRIMARY KEY,
+	user_workout_plan_id INT NOT NULL,
+    exercise_id VARCHAR(36) NOT NULL,
+	FOREIGN KEY (user_workout_plan_id) REFERENCES workout.user_workout_plans(id),
+	FOREIGN KEY (exercise_id) REFERENCES exercise.exercises(id)
 );
 
 CREATE OR REPLACE FUNCTION workout.getuserworkouts(
@@ -816,82 +822,122 @@ END;
 $$;
 
 
-    CREATE OR REPLACE FUNCTION workout.upsertweeklyplan(
-        p_user_id VARCHAR(36),
-        p_week_days JSONB,
-        p_week_start DATE,
-        p_week_end DATE
-    )
-    RETURNS VOID
-    LANGUAGE plpgsql
-    AS $$
-    DECLARE
-    
-        v_week_start_ts TIMESTAMP;
-        v_week_end_ts TIMESTAMP;
-    BEGIN
+CREATE OR REPLACE FUNCTION workout.get_weekly_workout_plans(
+    p_user_id VARCHAR(36),
+    p_date DATE
+)
+RETURNS TABLE (
+    workout_date DATE,
+    exercises JSONB
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        uwp.date AS workout_date,
+        COALESCE(
+            JSONB_AGG(
+                JSONB_BUILD_OBJECT(
+                    'exerciseId', uwpe.exercise_id,
+                    'exerciseName', e.name
+                )
+                ORDER BY e.name
+            ) FILTER (WHERE uwpe.exercise_id IS NOT NULL),
+            '[]'::JSONB
+        ) AS exercises
+    FROM workout.user_workout_plans uwp
+    LEFT JOIN workout.user_workout_plan_exercises uwpe ON uwp.id = uwpe.user_workout_plan_id
+    LEFT JOIN exercise.exercises e ON uwpe.exercise_id = e.id
+    WHERE uwp.user_id = p_user_id
+    AND uwp.date >= DATE_TRUNC('week', p_date)
+    AND uwp.date < DATE_TRUNC('week', p_date) + INTERVAL '7 days'
+    GROUP BY uwp.date
+    ORDER BY uwp.date;
+END;
+$$ LANGUAGE plpgsql;
 
-    v_week_start_ts := DATE_TRUNC('week', p_week_start::TIMESTAMP);
-        v_week_end_ts := v_week_start_ts + INTERVAL '6 days 23 hours 59 minutes 59 seconds 999 milliseconds';
-        INSERT INTO workout.user_weekly_plans (
-            user_id,
-            week_start,
-            week_end,
-            week_days,
-            created_at,
-            updated_at
-        )
-        VALUES (
-            v_plan_id,
-            p_user_id,
-            v_week_start_ts,
-            v_week_end_ts,
-            p_week_days,
-            CURRENT_TIMESTAMP,
-            CURRENT_TIMESTAMP
-        )
-        ON CONFLICT (user_id, week_start) DO UPDATE SET
-            id = EXCLUDED.id,
-            week_days = EXCLUDED.week_days,
-            updated_at = CURRENT_TIMESTAMP;
-
-    END;
-    $$;
-
-
-
-    CREATE OR REPLACE FUNCTION workout.getweeklyplan(
-        p_user_id VARCHAR(36),
-        p_date DATE
-    )
-    RETURNS TABLE (
-        plan_id integer,
-        user_id VARCHAR(36),
-        week_start DATE,
-        week_end DATE,
-        week_days JSONB,
-        created_at TIMESTAMP,
-        updated_at TIMESTAMP
-    )
-    LANGUAGE plpgsql
-    AS $$
-    BEGIN
-        RETURN QUERY
+CREATE OR REPLACE FUNCTION workout.upsert_weekly_workout_plan(
+    p_user_id VARCHAR(36),
+    p_week_days JSONB
+)
+RETURNS VOID AS $$
+DECLARE
+    day_record RECORD;
+    exercise_record RECORD;
+    plan_id INT;
+BEGIN
+    -- Loop through each day in the week_days array
+    FOR day_record IN 
         SELECT 
-            uwp.id AS plan_id,
-            uwp.user_id,
-            uwp.week_start,
-            uwp.week_end,
-            uwp.week_days,
-            uwp.created_at,
-            uwp.updated_at
-        FROM workout.user_weekly_plans uwp
-        WHERE uwp.user_id = p_user_id
-            AND p_date >= uwp.week_start
-            AND p_date <= uwp.week_end
-        LIMIT 1;
-    END;
-    $$;
+            (value->>'date')::DATE AS plan_date,
+            value->'exercises' AS exercises
+        FROM jsonb_array_elements(p_week_days) AS value
+    LOOP
+        -- Insert or update the workout plan for this date
+        INSERT INTO workout.user_workout_plans (user_id, date, updated_at)
+        VALUES (p_user_id, day_record.plan_date, CURRENT_TIMESTAMP)
+        ON CONFLICT (user_id, date) 
+        DO UPDATE SET updated_at = CURRENT_TIMESTAMP
+        RETURNING id INTO plan_id;
+        
+        -- If no conflict occurred, get the id
+        IF plan_id IS NULL THEN
+            SELECT id INTO plan_id 
+            FROM workout.user_workout_plans 
+            WHERE user_id = p_user_id AND date = day_record.plan_date;
+        END IF;
+        
+        -- Delete existing exercises for this plan
+        DELETE FROM workout.user_workout_plan_exercises 
+        WHERE user_workout_plan_id = plan_id;
+        
+        -- Insert new exercises
+        FOR exercise_record IN 
+            SELECT 
+                (value->>'exerciseId')::VARCHAR(36) AS exercise_id
+            FROM jsonb_array_elements(day_record.exercises) AS value
+        LOOP
+            INSERT INTO workout.user_workout_plan_exercises (user_workout_plan_id, exercise_id)
+            VALUES (plan_id, exercise_record.exercise_id);
+        END LOOP;
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION workout.get_users_with_planned_exercises(
+    p_date DATE
+)
+RETURNS TABLE (
+    user_id VARCHAR(36),
+    exercises JSONB
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        uwp.user_id,
+        COALESCE(
+            JSONB_AGG(
+                JSONB_BUILD_OBJECT(
+                    'exerciseId', uwpe.exercise_id,
+                    'exerciseName', e.name,
+                    'muscleGroupCode', e.musclegroupcode,
+                    'muscleGroupName', e.musclegroupname
+                )
+                ORDER BY e.name
+            ) FILTER (WHERE uwpe.exercise_id IS NOT NULL),
+            '[]'::JSONB
+        ) AS exercises
+    FROM workout.user_workout_plans uwp
+    LEFT JOIN workout.user_workout_plan_exercises uwpe ON uwp.id = uwpe.user_workout_plan_id
+    LEFT JOIN exercise.exercises e ON uwpe.exercise_id = e.id
+    WHERE uwp.date = p_date
+    AND uwpe.exercise_id IS NOT NULL
+    GROUP BY uwp.user_id
+    HAVING COUNT(uwpe.exercise_id) > 0;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
 
 
    CREATE OR REPLACE FUNCTION admin.adduser(

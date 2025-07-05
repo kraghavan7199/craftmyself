@@ -98,10 +98,8 @@ export class WorkoutController {
     @httpPost('/weekly/plan')
     public async upsertWeeklyWorkoutPlan(@request() req: express.Request, @response() res: express.Response) {
         try {
-
             const result = await this.postgresRepo.upsertWeeklyWorkoutPlan(req.body);
-            res.status(200).json(result);
-            res.status(200).json({ message: 'Weekly workout plan upserted successfully' });
+            res.status(200).json({ message: 'Weekly workout plan upserted successfully', result });
         } catch (error) {
             console.log(error)
             res.status(500).json({ error: 'Failed to upsert weekly workout plan' });

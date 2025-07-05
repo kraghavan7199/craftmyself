@@ -13,6 +13,7 @@ import { WorkoutService } from "../domain/services/WorkoutService";
 import { Database } from "./Database";
 import { IMacrosService } from "../domain/services/IMacrosService";
 import { MacrosService } from "../domain/services/MacrosService";
+import { CronJobService } from "../domain/services/CronJobService";
 
 
 const container = new Container();
@@ -25,6 +26,7 @@ container.bind<IGeminiService>(TYPES.GeminiService).to(GeminiService);
 container.bind<IAnalysisService>(TYPES.AnalysisService).to(AnalysisService);
 container.bind<IWorkoutService>(TYPES.WorkoutService).to(WorkoutService);
 container.bind<IMacrosService>(TYPES.MacrosService).to(MacrosService);
+container.bind<CronJobService>(TYPES.CronJobService).to(CronJobService).inSingletonScope();
 container.bind<Database>(TYPES.Database).to(Database).inSingletonScope();
 
  export {container, lazyInject}

@@ -11,6 +11,7 @@ import {container} from "./src/config/inversify.config";
 import { Database } from "./src/config/Database";
 import TYPES from "./src/config/types";
 import { cert, initializeApp } from 'firebase-admin/app';
+import { CronJobService } from "./src/domain/services/CronJobService";
 
 const server = new InversifyExpressServer(container);
 
@@ -55,6 +56,11 @@ async function startServer() {
     try {
         const database = container.get<Database>(TYPES.Database);
         await database.connect();
+        
+        // Start cron jobs
+        const cronJobService = container.get<CronJobService>(TYPES.CronJobService);
+        cronJobService.startCronJobs();
+        
         app.listen(PORT, () => {
             console.log(`🚀 Server is running on port ${PORT}`);
             console.log(`📡 API endpoints available at http://localhost:${PORT}`);
