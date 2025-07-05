@@ -116,7 +116,17 @@
       <app-exercise-prs [exercisePRs]="exercisePRs" (pageChanged)="onExercisePRsPageChanged($event)"
         (searchChanged)="onExercisePRsSearchChanged($event)">
       </app-exercise-prs>
+    </div>
 
+    <!-- Comprehensive Analytics Section -->
+    <div class="mb-8">
+    
+
+        <app-comprehensive-analytics 
+          [analytics]="comprehensiveAnalytics"
+          (dateRangeChanged)="onAnalyticsDateRangeChanged($event)">
+        </app-comprehensive-analytics>
+      
     </div>
 
   </main>

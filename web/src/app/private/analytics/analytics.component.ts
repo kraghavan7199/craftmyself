@@ -18,6 +18,8 @@ import { MacrosWeeklyChartComponent } from "./components/macros-weekly-chart.com
 import { CombinedHistoryComponent } from "./components/combined-history.component";
 import { CalendarHistoryComponent } from "./components/calendar-history.component";
 import { ExercisePRsComponent } from "./components/exercise-prs.component";
+import { ComprehensiveAnalyticsComponent } from "./components/comprehensive-analytics.component";
+import { ComprehensiveAnalytics } from "../../shared/interfaces/ComprehensiveAnalytics";
 
 Chart.register(...registerables);
 @Component({
@@ -34,7 +36,8 @@ Chart.register(...registerables);
         MacrosWeeklyChartComponent,
         CombinedHistoryComponent,
         CalendarHistoryComponent,
-        ExercisePRsComponent
+        ExercisePRsComponent,
+        ComprehensiveAnalyticsComponent
     ],
     templateUrl: './analytics.component.html'
 })
@@ -56,8 +59,12 @@ export class AnalyticsComponent {
     workoutHistory: false, 
     macrosHistory: false, 
     weeklySummary: false, 
-    exercisePRs: false 
+    exercisePRs: false,
+    comprehensiveAnalytics: false
   };
+  comprehensiveAnalytics: ComprehensiveAnalytics | null = null;
+  analyticsStartDate: Date | null = null;
+  analyticsEndDate: Date | null = null;
   limit = 31;
   skip = 0;
   workoutStartDate: Date | null = null;
@@ -101,6 +108,7 @@ isCalSummary: any;
         this.initializeCalendarView();
         this.getUserWeeklySummary();
         this.getUserExercisePRs();
+        this.getComprehensiveAnalytics();
       }
 
     })
@@ -332,5 +340,40 @@ isCalSummary: any;
 
     this.getUserWorkoutHistory();
     this.getUserMacrosHistory();
+  }
+
+  getComprehensiveAnalytics(): void {
+    try {
+      this.isLoading.comprehensiveAnalytics = true;
+      this.firestoreService.getComprehensiveAnalytics(
+        this.currentUserId, 
+        this.analyticsStartDate, 
+        this.analyticsEndDate
+      ).subscribe((analytics: ComprehensiveAnalytics) => {
+        this.comprehensiveAnalytics = analytics;
+        this.isLoading.comprehensiveAnalytics = false;
+      });
+    } catch (error) {
+      this.isLoading.comprehensiveAnalytics = false;
+      console.error('Error fetching comprehensive analytics:', error);
+    }
+  }
+
+  setAnalyticsDateRange(startDate: Date | null, endDate: Date | null): void {
+    this.analyticsStartDate = startDate;
+    this.analyticsEndDate = endDate;
+    this.getComprehensiveAnalytics();
+  }
+
+  clearAnalyticsDateRange(): void {
+    this.analyticsStartDate = null;
+    this.analyticsEndDate = null;
+    this.getComprehensiveAnalytics();
+  }
+
+  onAnalyticsDateRangeChanged(event: {startDate: Date, endDate: Date}): void {
+    this.analyticsStartDate = event.startDate;
+    this.analyticsEndDate = event.endDate;
+    this.getComprehensiveAnalytics();
   }
 }

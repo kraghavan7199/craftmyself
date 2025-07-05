@@ -3,6 +3,7 @@ CREATE SCHEMA workout;
 CREATE SCHEMA summary;
 CREATE SCHEMA admin;
 CREATE SCHEMA macros;
+CREATE SCHEMA analytics;
 
 CREATE TABLE IF NOT EXISTS exercise.exercises (
     id VARCHAR(36) PRIMARY KEY,
@@ -1004,3 +1005,441 @@ BEGIN
     WHERE u.id = p_user_id;
 END;
 $BODY$;
+CREATE OR REPLACE FUNCTION analytics.get_comprehensive_workout_analytics(
+    p_user_id VARCHAR(36),
+    p_start_date DATE DEFAULT NULL,
+    p_end_date DATE DEFAULT NULL
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_result JSONB := '{}'::JSONB;
+    v_basic_metrics JSONB;
+    v_pattern_analysis JSONB;
+    v_muscle_analysis JSONB;
+    v_rep_analysis JSONB;
+    v_pr_tracking JSONB;
+    v_progression JSONB;
+    v_training_load JSONB;
+    v_recovery JSONB;
+    v_nutrition JSONB;
+    v_periodization JSONB;
+    v_additional_metrics JSONB;
+BEGIN
+    -- Set default date range if not provided (last 90 days)
+    IF p_start_date IS NULL THEN
+        p_start_date := CURRENT_DATE - INTERVAL '90 days';
+    END IF;
+    IF p_end_date IS NULL THEN
+        p_end_date := CURRENT_DATE;
+    END IF;
+
+    -- 1. Basic Performance Metrics
+    WITH workout_data AS (
+        SELECT 
+            uw.id as workout_id,
+            uw.created_at,
+            DATE(uw.created_at) as workout_date,
+            uwes.weight,
+            uwes.reps,
+            uwes.set_number,
+            e.name as exercise_name,
+            e.musclegroupcode,
+            (uwes.weight * uwes.reps) as set_volume,
+            EXTRACT(HOUR FROM (MAX(uwes.created_at) OVER (PARTITION BY uw.id) - MIN(uwes.created_at) OVER (PARTITION BY uw.id))) * 60 +
+            EXTRACT(MINUTE FROM (MAX(uwes.created_at) OVER (PARTITION BY uw.id) - MIN(uwes.created_at) OVER (PARTITION BY uw.id))) as workout_duration
+        FROM workout.user_workouts uw
+        INNER JOIN exercise.user_workout_exercises uwe ON uw.id = uwe.user_workout_id
+        INNER JOIN exercise.user_workout_exercise_set uwes ON uwe.id = uwes.user_workout_exercise_id
+        INNER JOIN exercise.exercises e ON uwe.exercise_id = e.id
+        WHERE uw.user_id = p_user_id
+        AND DATE(uw.created_at) BETWEEN p_start_date AND p_end_date
+    ),
+    volume_calculations AS (
+        SELECT 
+            SUM(set_volume) as total_volume,
+            COUNT(DISTINCT workout_date) as total_workout_days,
+            COUNT(DISTINCT workout_id) as total_workouts,
+            SUM(set_volume) / NULLIF(COUNT(DISTINCT workout_id), 0) as avg_volume_per_workout,
+            COUNT(*) as total_sets,
+            SUM(reps) as total_reps,
+            SUM(reps) / NULLIF(COUNT(*), 0) as avg_reps_per_set,
+            COUNT(*) / NULLIF(COUNT(DISTINCT exercise_name), 0) as avg_sets_per_exercise,
+            SUM(set_volume) / NULLIF(SUM(workout_duration), 0) as training_density
+        FROM workout_data
+    )
+    SELECT jsonb_build_object(
+        'totalVolume', COALESCE(vc.total_volume, 0),
+        'totalWorkoutDays', COALESCE(vc.total_workout_days, 0),
+        'totalWorkouts', COALESCE(vc.total_workouts, 0),
+        'avgVolumePerWorkout', COALESCE(vc.avg_volume_per_workout, 0),
+        'totalSets', COALESCE(vc.total_sets, 0),
+        'totalReps', COALESCE(vc.total_reps, 0),
+        'avgRepsPerSet', COALESCE(vc.avg_reps_per_set, 0),
+        'avgSetsPerExercise', COALESCE(vc.avg_sets_per_exercise, 0),
+        'trainingDensity', COALESCE(vc.training_density, 0)
+    ) INTO v_basic_metrics
+    FROM volume_calculations vc;
+
+    -- 2. Workout Pattern Analysis
+    WITH pattern_data AS (
+        SELECT 
+            EXTRACT(DOW FROM DATE(uw.created_at)) as day_of_week,
+            DATE(uw.created_at) as workout_date,
+            COUNT(*) as workouts_count
+        FROM workout.user_workouts uw
+        WHERE uw.user_id = p_user_id
+        AND DATE(uw.created_at) BETWEEN p_start_date AND p_end_date
+        GROUP BY DATE(uw.created_at)
+    ),
+    frequency_metrics AS (
+        SELECT 
+            COUNT(DISTINCT workout_date) as training_days,
+            (p_end_date - p_start_date + 1) as total_days,
+            COUNT(DISTINCT workout_date)::DECIMAL / NULLIF((p_end_date - p_start_date + 1), 0) as training_frequency,
+            COUNT(DISTINCT workout_date)::DECIMAL / NULLIF(CEIL((p_end_date - p_start_date + 1)::DECIMAL / 7), 0) as weekly_avg_workouts
+        FROM pattern_data
+    ),
+    day_analysis AS (
+        SELECT 
+            day_of_week,
+            COUNT(*) as day_workouts,
+            COUNT(*)::DECIMAL / NULLIF((SELECT COUNT(*) FROM pattern_data), 0) * 100 as day_activity_score
+        FROM pattern_data
+        GROUP BY day_of_week
+    )
+    SELECT jsonb_build_object(
+        'trainingFrequency', COALESCE(fm.training_frequency * 100, 0),
+        'weeklyAvgWorkouts', COALESCE(fm.weekly_avg_workouts, 0),
+        'dayAnalysis', COALESCE(jsonb_agg(jsonb_build_object(
+            'dayOfWeek', da.day_of_week,
+            'workouts', da.day_workouts,
+            'activityScore', da.day_activity_score
+        )), '[]'::jsonb)
+    ) INTO v_pattern_analysis
+    FROM frequency_metrics fm
+    CROSS JOIN day_analysis da
+    GROUP BY fm.training_frequency, fm.weekly_avg_workouts;
+
+    -- 3. Muscle Group Training Analysis
+    WITH muscle_data AS (
+        SELECT 
+            e.musclegroupcode,
+            COUNT(*) as sessions,
+            SUM(uwes.weight * uwes.reps) as total_volume,
+            COUNT(DISTINCT DATE(uw.created_at)) as training_days
+        FROM workout.user_workouts uw
+        INNER JOIN exercise.user_workout_exercises uwe ON uw.id = uwe.user_workout_id
+        INNER JOIN exercise.user_workout_exercise_set uwes ON uwe.id = uwes.user_workout_exercise_id
+        INNER JOIN exercise.exercises e ON uwe.exercise_id = e.id
+        WHERE uw.user_id = p_user_id
+        AND DATE(uw.created_at) BETWEEN p_start_date AND p_end_date
+        GROUP BY e.musclegroupcode
+    ),
+    muscle_stats AS (
+        SELECT 
+            AVG(total_volume) as avg_volume,
+            STDDEV(total_volume) as std_volume,
+            SUM(total_volume) as overall_volume
+        FROM muscle_data
+    )
+    SELECT jsonb_build_object(
+        'muscleGroupData', COALESCE(jsonb_agg(jsonb_build_object(
+            'muscleGroup', md.musclegroupcode,
+            'sessions', md.sessions,
+            'totalVolume', md.total_volume,
+            'volumePercentage', (md.total_volume / NULLIF(ms.overall_volume, 0) * 100),
+            'trainingDays', md.training_days
+        )), '[]'::jsonb),
+        'balanceScore', CASE 
+            WHEN ms.avg_volume > 0 THEN 100 - (ms.std_volume / ms.avg_volume * 100)
+            ELSE 0 
+        END
+    ) INTO v_muscle_analysis
+    FROM muscle_data md
+    CROSS JOIN muscle_stats ms
+    GROUP BY ms.avg_volume, ms.std_volume, ms.overall_volume;
+
+    -- 4. Rep Range Analysis
+    WITH rep_ranges AS (
+        SELECT 
+            CASE 
+                WHEN uwes.reps BETWEEN 1 AND 5 THEN 'strength'
+                WHEN uwes.reps BETWEEN 6 AND 8 THEN 'power'
+                WHEN uwes.reps BETWEEN 9 AND 15 THEN 'hypertrophy'
+                ELSE 'endurance'
+            END as rep_range,
+            COUNT(*) as sets_count,
+            SUM(uwes.weight * uwes.reps) as volume,
+            AVG(uwes.weight) as avg_weight
+        FROM workout.user_workouts uw
+        INNER JOIN exercise.user_workout_exercises uwe ON uw.id = uwe.user_workout_id
+        INNER JOIN exercise.user_workout_exercise_set uwes ON uwe.id = uwes.user_workout_exercise_id
+        WHERE uw.user_id = p_user_id
+        AND DATE(uw.created_at) BETWEEN p_start_date AND p_end_date
+        GROUP BY rep_range
+    ),
+    total_sets AS (
+        SELECT SUM(sets_count) as total FROM rep_ranges
+    )
+    SELECT jsonb_build_object(
+        'repRangeDistribution', COALESCE(jsonb_agg(jsonb_build_object(
+            'range', rr.rep_range,
+            'sets', rr.sets_count,
+            'volume', rr.volume,
+            'percentage', (rr.sets_count::DECIMAL / NULLIF(ts.total, 0) * 100),
+            'avgWeight', rr.avg_weight
+        )), '[]'::jsonb)
+    ) INTO v_rep_analysis
+    FROM rep_ranges rr
+    CROSS JOIN total_sets ts
+    GROUP BY ts.total;
+
+    -- 5. Personal Records Tracking
+    WITH pr_data AS (
+        SELECT 
+            e.name as exercise_name,
+            uep.weight_pr,
+            uep.weight_pr_date,
+            uep.volume_pr,
+            uep.volume_pr_date,
+            uep.estimated_1rm,
+            uep.estimated_1rm_date,
+            CURRENT_DATE - uep.weight_pr_date as days_since_weight_pr,
+            CURRENT_DATE - uep.estimated_1rm_date as days_since_1rm_pr
+        FROM exercise.user_exercise_prs uep
+        INNER JOIN exercise.exercises e ON uep.exercise_id = e.id
+        WHERE uep.user_id = p_user_id
+    ),
+    pr_stats AS (
+        SELECT 
+            COUNT(*) as total_prs,
+            AVG(days_since_weight_pr) as avg_days_since_weight_pr,
+            AVG(days_since_1rm_pr) as avg_days_since_1rm_pr
+        FROM pr_data
+    )
+    SELECT jsonb_build_object(
+        'personalRecords', COALESCE(jsonb_agg(jsonb_build_object(
+            'exerciseName', pd.exercise_name,
+            'weightPR', pd.weight_pr,
+            'weightPRDate', pd.weight_pr_date,
+            'volumePR', pd.volume_pr,
+            'volumePRDate', pd.volume_pr_date,
+            'estimated1RM', pd.estimated_1rm,
+            'estimated1RMDate', pd.estimated_1rm_date,
+            'daysSinceWeightPR', pd.days_since_weight_pr,
+            'daysSince1RMPR', pd.days_since_1rm_pr
+        )), '[]'::jsonb),
+        'totalPRs', COALESCE(ps.total_prs, 0),
+        'avgDaysSinceWeightPR', COALESCE(ps.avg_days_since_weight_pr, 0),
+        'avgDaysSince1RMPR', COALESCE(ps.avg_days_since_1rm_pr, 0)
+    ) INTO v_pr_tracking
+    FROM pr_data pd
+    CROSS JOIN pr_stats ps
+    GROUP BY ps.total_prs, ps.avg_days_since_weight_pr, ps.avg_days_since_1rm_pr;
+
+    -- 6. Progression Analysis
+    WITH monthly_data AS (
+        SELECT 
+            DATE_TRUNC('month', DATE(uw.created_at)) as month,
+            SUM(uwes.weight * uwes.reps) as monthly_volume,
+            AVG(uwes.weight) as avg_weight,
+            COUNT(DISTINCT uw.id) as workouts
+        FROM workout.user_workouts uw
+        INNER JOIN exercise.user_workout_exercises uwe ON uw.id = uwe.user_workout_id
+        INNER JOIN exercise.user_workout_exercise_set uwes ON uwe.id = uwes.user_workout_exercise_id
+        WHERE uw.user_id = p_user_id
+        AND DATE(uw.created_at) BETWEEN p_start_date AND p_end_date
+        GROUP BY DATE_TRUNC('month', DATE(uw.created_at))
+        ORDER BY month
+    ),
+    progression_calc AS (
+        SELECT 
+            month,
+            monthly_volume,
+            avg_weight,
+            workouts,
+            LAG(monthly_volume) OVER (ORDER BY month) as prev_volume,
+            LAG(avg_weight) OVER (ORDER BY month) as prev_weight,
+            (monthly_volume - LAG(monthly_volume) OVER (ORDER BY month)) / 
+                NULLIF(LAG(monthly_volume) OVER (ORDER BY month), 0) * 100 as volume_progression,
+            (avg_weight - LAG(avg_weight) OVER (ORDER BY month)) / 
+                NULLIF(LAG(avg_weight) OVER (ORDER BY month), 0) * 100 as weight_progression
+        FROM monthly_data
+    )
+    SELECT jsonb_build_object(
+        'monthlyProgression', COALESCE(jsonb_agg(jsonb_build_object(
+            'month', pc.month,
+            'volume', pc.monthly_volume,
+            'avgWeight', pc.avg_weight,
+            'workouts', pc.workouts,
+            'volumeProgression', pc.volume_progression,
+            'weightProgression', pc.weight_progression
+        )), '[]'::jsonb)
+    ) INTO v_progression
+    FROM progression_calc pc;
+
+    -- 7. Training Load & Stress (simplified TSS calculation)
+    WITH load_data AS (
+        SELECT 
+            DATE(uw.created_at) as workout_date,
+            SUM(uwes.weight * uwes.reps) as daily_volume,
+            COUNT(*) as daily_sets,
+            AVG(uwes.weight) as avg_weight
+        FROM workout.user_workouts uw
+        INNER JOIN exercise.user_workout_exercises uwe ON uw.id = uwe.user_workout_id
+        INNER JOIN exercise.user_workout_exercise_set uwes ON uwe.id = uwes.user_workout_exercise_id
+        WHERE uw.user_id = p_user_id
+        AND DATE(uw.created_at) BETWEEN p_start_date AND p_end_date
+        GROUP BY DATE(uw.created_at)
+        ORDER BY workout_date
+    ),
+    tss_calc AS (
+        SELECT 
+            workout_date,
+            daily_volume,
+            daily_sets,
+            avg_weight,
+            -- Simplified TSS calculation based on volume and sets
+            (daily_volume / 1000 + daily_sets * 5) as daily_tss,
+            AVG(daily_volume / 1000 + daily_sets * 5) OVER (
+                ORDER BY workout_date 
+                ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+            ) as acute_load,
+            AVG(daily_volume / 1000 + daily_sets * 5) OVER (
+                ORDER BY workout_date 
+                ROWS BETWEEN 27 PRECEDING AND CURRENT ROW
+            ) as chronic_load
+        FROM load_data
+    )
+    SELECT jsonb_build_object(
+        'trainingLoad', COALESCE(jsonb_agg(jsonb_build_object(
+            'date', tc.workout_date,
+            'dailyTSS', tc.daily_tss,
+            'acuteLoad', tc.acute_load,
+            'chronicLoad', tc.chronic_load,
+            'trainingStressBalance', (tc.chronic_load - tc.acute_load),
+            'fatigueRatio', (tc.acute_load / NULLIF(tc.chronic_load, 0))
+        )), '[]'::jsonb)
+    ) INTO v_training_load
+    FROM tss_calc tc;
+
+    -- 8. Recovery Analysis
+    WITH recovery_data AS (
+        SELECT 
+            DATE(uw.created_at) as workout_date,
+            LAG(DATE(uw.created_at)) OVER (ORDER BY DATE(uw.created_at)) as prev_workout,
+            DATE(uw.created_at) - LAG(DATE(uw.created_at)) OVER (ORDER BY DATE(uw.created_at)) as rest_days
+        FROM workout.user_workouts uw
+        WHERE uw.user_id = p_user_id
+        AND DATE(uw.created_at) BETWEEN p_start_date AND p_end_date
+        GROUP BY DATE(uw.created_at)
+        ORDER BY workout_date
+    )
+    SELECT jsonb_build_object(
+        'recoveryMetrics', jsonb_build_object(
+            'avgRestDays', COALESCE(AVG(rest_days), 0),
+            'minRestDays', COALESCE(MIN(rest_days), 0),
+            'maxRestDays', COALESCE(MAX(rest_days), 0)
+        )
+    ) INTO v_recovery
+    FROM recovery_data
+    WHERE rest_days IS NOT NULL;
+
+    -- 9. Nutrition Correlation (if macro data exists)
+    WITH nutrition_performance AS (
+        SELECT 
+            DATE(uw.created_at) as workout_date,
+            SUM(uwes.weight * uwes.reps) as workout_volume,
+            udm.totals->>'calories' as calories,
+            udm.totals->>'protein' as protein
+        FROM workout.user_workouts uw
+        INNER JOIN exercise.user_workout_exercises uwe ON uw.id = uwe.user_workout_id
+        INNER JOIN exercise.user_workout_exercise_set uwes ON uwe.id = uwes.user_workout_exercise_id
+        LEFT JOIN macros.user_daily_macros udm ON uw.user_id = udm.user_id AND DATE(uw.created_at) = udm.date
+        WHERE uw.user_id = p_user_id
+        AND DATE(uw.created_at) BETWEEN p_start_date AND p_end_date
+        GROUP BY DATE(uw.created_at), udm.totals
+    )
+    SELECT jsonb_build_object(
+        'nutritionData', COALESCE(jsonb_agg(jsonb_build_object(
+            'date', np.workout_date,
+            'workoutVolume', np.workout_volume,
+            'calories', np.calories,
+            'protein', np.protein
+        )) FILTER (WHERE np.calories IS NOT NULL), '[]'::jsonb)
+    ) INTO v_nutrition
+    FROM nutrition_performance np;
+
+    -- 10. Periodization Analysis (4-week blocks)
+    WITH block_data AS (
+        SELECT 
+            FLOOR((DATE(uw.created_at) - p_start_date) / 28) as block_number,
+            SUM(uwes.weight * uwes.reps) as block_volume,
+            AVG(uwes.weight) as block_avg_weight,
+            COUNT(DISTINCT DATE(uw.created_at)) as block_training_days
+        FROM workout.user_workouts uw
+        INNER JOIN exercise.user_workout_exercises uwe ON uw.id = uwe.user_workout_id
+        INNER JOIN exercise.user_workout_exercise_set uwes ON uwe.id = uwes.user_workout_exercise_id
+        WHERE uw.user_id = p_user_id
+        AND DATE(uw.created_at) BETWEEN p_start_date AND p_end_date
+        GROUP BY FLOOR((DATE(uw.created_at) - p_start_date) / 28)
+        ORDER BY block_number
+    )
+    SELECT jsonb_build_object(
+        'periodizationBlocks', COALESCE(jsonb_agg(jsonb_build_object(
+            'blockNumber', bd.block_number,
+            'volume', bd.block_volume,
+            'avgWeight', bd.block_avg_weight,
+            'trainingDays', bd.block_training_days
+        )), '[]'::jsonb)
+    ) INTO v_periodization
+    FROM block_data bd;
+
+    -- 11. Additional Useful Metrics
+    WITH additional_calcs AS (
+        SELECT 
+            COUNT(DISTINCT DATE(uw.created_at)) as unique_training_days,
+            COUNT(DISTINCT uwe.exercise_id) as unique_exercises,
+            MAX(DATE(uw.created_at)) - MIN(DATE(uw.created_at)) as training_span_days,
+            SUM(uwes.weight * uwes.reps) / NULLIF(COUNT(DISTINCT DATE(uw.created_at)), 0) as avg_daily_volume,
+            COUNT(*) / NULLIF(COUNT(DISTINCT DATE(uw.created_at)), 0) as avg_sets_per_day
+        FROM workout.user_workouts uw
+        INNER JOIN exercise.user_workout_exercises uwe ON uw.id = uwe.user_workout_id
+        INNER JOIN exercise.user_workout_exercise_set uwes ON uwe.id = uwes.user_workout_exercise_id
+        WHERE uw.user_id = p_user_id
+        AND DATE(uw.created_at) BETWEEN p_start_date AND p_end_date
+    )
+    SELECT jsonb_build_object(
+        'uniqueTrainingDays', COALESCE(ac.unique_training_days, 0),
+        'uniqueExercises', COALESCE(ac.unique_exercises, 0),
+        'trainingSpanDays', COALESCE(ac.training_span_days, 0),
+        'avgDailyVolume', COALESCE(ac.avg_daily_volume, 0),
+        'avgSetsPerDay', COALESCE(ac.avg_sets_per_day, 0)
+    ) INTO v_additional_metrics
+    FROM additional_calcs ac;
+
+    -- Combine all metrics into final result
+    v_result := jsonb_build_object(
+        'dateRange', jsonb_build_object(
+            'startDate', p_start_date,
+            'endDate', p_end_date
+        ),
+        'basicMetrics', COALESCE(v_basic_metrics, '{}'::jsonb),
+        'patternAnalysis', COALESCE(v_pattern_analysis, '{}'::jsonb),
+        'muscleAnalysis', COALESCE(v_muscle_analysis, '{}'::jsonb),
+        'repAnalysis', COALESCE(v_rep_analysis, '{}'::jsonb),
+        'prTracking', COALESCE(v_pr_tracking, '{}'::jsonb),
+        'progression', COALESCE(v_progression, '{}'::jsonb),
+        'trainingLoad', COALESCE(v_training_load, '{}'::jsonb),
+        'recovery', COALESCE(v_recovery, '{}'::jsonb),
+        'nutrition', COALESCE(v_nutrition, '{}'::jsonb),
+        'periodization', COALESCE(v_periodization, '{}'::jsonb),
+        'additionalMetrics', COALESCE(v_additional_metrics, '{}'::jsonb)
+    );
+
+    RETURN v_result;
+END;
+$$;
+

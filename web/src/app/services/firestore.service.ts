@@ -121,4 +121,22 @@ export class FirestoreService {
        return this.httpClient.get(`${environment.apiUrl}/analysis/comprehensive/4Ogt93Z3z8gWuLBB4o6yji71IGT2`);  
     }
 
+    getComprehensiveAnalytics(userId: string, startDate?: Date | null, endDate?: Date | null): Observable<any> {
+        let url = `${environment.apiUrl}/analytics/user/${userId}/comprehensive`;
+        const params = [];
+        
+        if (startDate) {
+            params.push(`startDate=${startDate.toISOString().split('T')[0]}`);
+        }
+        if (endDate) {
+            params.push(`endDate=${endDate.toISOString().split('T')[0]}`);
+        }
+        
+        if (params.length > 0) {
+            url += `?${params.join('&')}`;
+        }
+        
+        return this.httpClient.get(url);
+    }
+
 }

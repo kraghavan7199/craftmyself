@@ -1,0 +1,248 @@
+<section class="bg-card/50 rounded-xl p-4 sm:p-6 shadow-lg border border-border overflow-hidden">
+  <div class="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 mb-6">
+    <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
+      <svg class="w-5 h-5 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+    </div>
+    <div class="min-w-0 flex-1">
+      <h2 class="text-xl font-semibold text-primary truncate">Comprehensive Workout Analytics</h2>
+      <p class="text-muted-foreground text-sm">Detailed performance insights and training metrics</p>
+    </div>
+  </div>
+  
+  <!-- Date Range Presets -->
+  <div class="mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+      <div class="flex items-center space-x-2 flex-shrink-0">
+        <svg class="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span class="text-foreground font-medium">Time Period:</span>
+      </div>
+      
+      <!-- Quick Presets -->
+      <div class="flex flex-wrap gap-2">
+        <button 
+          *ngFor="let preset of presets"
+          (click)="setPreset(preset.days)"
+          [class]="'px-3 py-2 text-sm border rounded-lg transition-colors ' +
+                   (selectedPreset === preset.days ? 
+                   'bg-primary text-primary-foreground border-primary' : 
+                   'bg-background text-foreground border-border hover:bg-muted')">
+          {{preset.label}}
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <ng-container *ngIf="analytics; else noData">
+    <!-- Date Range -->
+    <div class="mb-6 p-4 bg-muted/30 rounded-xl">
+      <h3 class="text-lg font-semibold mb-2 text-foreground">Analysis Period</h3>
+      <p class="text-muted-foreground text-sm">{{analytics.dateRange.startDate | date:'mediumDate'}} - {{analytics.dateRange.endDate | date:'mediumDate'}}</p>
+    </div>
+
+    <!-- Basic Performance Metrics -->
+    <div class="mb-8">
+      <h3 class="text-xl font-semibold mb-4 text-foreground">Basic Performance Metrics</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div class="bg-primary/10 border border-primary/20 text-primary p-4 rounded-xl hover:bg-primary/20 transition-colors">
+          <div class="text-2xl font-bold">{{analytics.basicMetrics.totalVolume | number:'1.0-0'}}</div>
+          <div class="text-sm opacity-80">Total Volume</div>
+        </div>
+        <div class="bg-muted/50 border border-border p-4 rounded-xl hover:bg-muted transition-colors">
+          <div class="text-2xl font-bold text-foreground">{{analytics.basicMetrics.totalWorkouts}}</div>
+          <div class="text-sm text-muted-foreground">Total Workouts</div>
+        </div>
+        <div class="bg-muted/50 border border-border p-4 rounded-xl hover:bg-muted transition-colors">
+          <div class="text-2xl font-bold text-foreground">{{analytics.basicMetrics.totalSets}}</div>
+          <div class="text-sm text-muted-foreground">Total Sets</div>
+        </div>
+        <div class="bg-muted/50 border border-border p-4 rounded-xl hover:bg-muted transition-colors">
+          <div class="text-2xl font-bold text-foreground">{{analytics.basicMetrics.avgRepsPerSet | number:'1.1-1'}}</div>
+          <div class="text-sm text-muted-foreground">Avg Reps/Set</div>
+        </div>
+        <div class="bg-muted/50 border border-border p-4 rounded-xl hover:bg-muted transition-colors">
+          <div class="text-2xl font-bold text-foreground">{{analytics.basicMetrics.trainingDensity | number:'1.1-1'}}</div>
+          <div class="text-sm text-muted-foreground">Training Density</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pattern Analysis -->
+    <div class="mb-8">
+      <h3 class="text-xl font-semibold mb-4 text-foreground">Workout Pattern Analysis</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-muted/50 border border-border p-4 rounded-xl">
+          <h4 class="font-semibold mb-2 text-foreground">Training Frequency</h4>
+          <div class="text-3xl font-bold text-primary">{{analytics.patternAnalysis.trainingFrequency | number:'1.1-1'}}%</div>
+          <div class="text-sm text-muted-foreground">of days trained</div>
+        </div>
+        <div class="bg-muted/50 border border-border p-4 rounded-xl">
+          <h4 class="font-semibold mb-2 text-foreground">Weekly Average</h4>
+          <div class="text-3xl font-bold text-primary">{{analytics.patternAnalysis.weeklyAvgWorkouts | number:'1.1-1'}}</div>
+          <div class="text-sm text-muted-foreground">workouts per week</div>
+        </div>
+      </div>
+      
+      <!-- Day of Week Analysis -->
+      <div class="mt-4">
+        <h4 class="font-semibold mb-2 text-foreground">Day of Week Activity</h4>
+        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+          <div *ngFor="let day of analytics.patternAnalysis.dayAnalysis; let i = index" 
+               class="text-center p-2 sm:p-3 rounded-xl border transition-colors"
+               [ngClass]="{
+                 'bg-blue-500/20 border-blue-400 text-blue-100': day.activityScore > 20,
+                 'bg-green-500/20 border-green-400 text-green-100': day.activityScore > 15 && day.activityScore <= 20,
+                 'bg-yellow-500/20 border-yellow-400 text-yellow-100': day.activityScore > 10 && day.activityScore <= 15,
+                 'bg-gray-500/20 border-gray-400 text-gray-300': day.activityScore <= 10
+               }">
+            <div class="text-xs sm:text-sm font-medium">{{getDayName(day.dayOfWeek)}}</div>
+            <div class="text-xs font-bold">{{day.activityScore | number:'1.0-0'}}%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Muscle Group Analysis -->
+    <div class="mb-8">
+      <h3 class="text-xl font-semibold mb-4 text-foreground">Muscle Group Analysis</h3>
+      <div class="mb-4">
+        <div class="flex items-center mb-2">
+          <span class="text-sm font-medium mr-2 text-foreground">Balance Score:</span>
+          <div class="flex-1 bg-muted rounded-full h-3">
+            <div class="bg-primary h-3 rounded-full transition-all duration-300"
+                 [style.width.%]="analytics.muscleAnalysis.balanceScore"></div>
+          </div>
+          <span class="ml-2 text-sm font-bold text-primary">{{analytics.muscleAnalysis.balanceScore | number:'1.0-0'}}%</span>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div *ngFor="let muscle of analytics.muscleAnalysis.muscleGroupData" 
+             class="bg-muted/50 border border-border p-4 rounded-xl hover:bg-muted transition-colors">
+          <h4 class="font-semibold capitalize mb-2 text-foreground">{{muscle.muscleGroup}}</h4>
+          <div class="space-y-1">
+            <div class="flex justify-between">
+              <span class="text-sm text-muted-foreground">Volume:</span>
+              <span class="font-medium text-foreground">{{muscle.totalVolume | number:'1.0-0'}}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-muted-foreground">Sessions:</span>
+              <span class="font-medium text-foreground">{{muscle.sessions}}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-muted-foreground">% of Total:</span>
+              <span class="font-medium text-primary">{{muscle.volumePercentage | number:'1.1-1'}}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rep Range Analysis -->
+    <div class="mb-8">
+      <h3 class="text-xl font-semibold mb-4 text-foreground">Rep Range Distribution</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div *ngFor="let range of analytics.repAnalysis.repRangeDistribution" 
+             class="bg-muted/50 border border-border p-4 rounded-xl text-center hover:bg-muted transition-colors">
+          <h4 class="font-semibold capitalize mb-2 text-foreground">{{range.range}}</h4>
+          <div class="text-2xl font-bold text-primary">
+            {{range.percentage | number:'1.0-0'}}%
+          </div>
+          <div class="text-sm text-muted-foreground">{{range.sets}} sets</div>
+          <div class="text-xs text-muted-foreground">Avg: {{range.avgWeight | number:'1.0-0'}}kg</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personal Records Summary -->
+    <div class="mb-8">
+      <h3 class="text-xl font-semibold mb-4 text-foreground">Personal Records Summary</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div class="bg-primary/10 border border-primary/20 p-4 rounded-xl">
+          <div class="text-2xl font-bold text-primary">{{analytics.prTracking.totalPRs}}</div>
+          <div class="text-sm text-muted-foreground">Total PRs</div>
+        </div>
+        <div class="bg-muted/50 border border-border p-4 rounded-xl">
+          <div class="text-2xl font-bold text-foreground">{{analytics.prTracking.avgDaysSinceWeightPR | number:'1.0-0'}}</div>
+          <div class="text-sm text-muted-foreground">Avg Days Since Weight PR</div>
+        </div>
+        <div class="bg-muted/50 border border-border p-4 rounded-xl">
+          <div class="text-2xl font-bold text-foreground">{{analytics.prTracking.avgDaysSince1RMPR | number:'1.0-0'}}</div>
+          <div class="text-sm text-muted-foreground">Avg Days Since 1RM PR</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recovery Analysis -->
+    <div class="mb-8">
+      <h3 class="text-xl font-semibold mb-4 text-foreground">Recovery Analysis</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-muted/50 border border-border p-4 rounded-xl">
+          <h4 class="font-semibold mb-2 text-foreground">Average Rest Days</h4>
+          <div class="text-2xl font-bold text-primary">{{analytics.recovery.recoveryMetrics.avgRestDays | number:'1.1-1'}}</div>
+        </div>
+        <div class="bg-muted/50 border border-border p-4 rounded-xl">
+          <h4 class="font-semibold mb-2 text-foreground">Minimum Rest Days</h4>
+          <div class="text-2xl font-bold text-foreground">{{analytics.recovery.recoveryMetrics.minRestDays}}</div>
+        </div>
+        <div class="bg-muted/50 border border-border p-4 rounded-xl">
+          <h4 class="font-semibold mb-2 text-foreground">Maximum Rest Days</h4>
+          <div class="text-2xl font-bold text-foreground">{{analytics.recovery.recoveryMetrics.maxRestDays}}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Metrics -->
+    <div class="mb-8">
+      <h3 class="text-xl font-semibold mb-4 text-foreground">Additional Insights</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div class="bg-muted/50 border border-border p-4 rounded-xl text-center hover:bg-muted transition-colors">
+          <div class="text-xl font-bold text-foreground">{{analytics.additionalMetrics.uniqueExercises}}</div>
+          <div class="text-sm text-muted-foreground">Unique Exercises</div>
+        </div>
+        <div class="bg-muted/50 border border-border p-4 rounded-xl text-center hover:bg-muted transition-colors">
+          <div class="text-xl font-bold text-foreground">{{analytics.additionalMetrics.trainingSpanDays}}</div>
+          <div class="text-sm text-muted-foreground">Training Span (Days)</div>
+        </div>
+        <div class="bg-muted/50 border border-border p-4 rounded-xl text-center hover:bg-muted transition-colors">
+          <div class="text-xl font-bold text-foreground">{{analytics.additionalMetrics.avgDailyVolume | number:'1.0-0'}}</div>
+          <div class="text-sm text-muted-foreground">Avg Daily Volume</div>
+        </div>
+        <div class="bg-muted/50 border border-border p-4 rounded-xl text-center hover:bg-muted transition-colors">
+          <div class="text-xl font-bold text-foreground">{{analytics.additionalMetrics.avgSetsPerDay | number:'1.1-1'}}</div>
+          <div class="text-sm text-muted-foreground">Avg Sets/Day</div>
+        </div>
+        <div class="bg-muted/50 border border-border p-4 rounded-xl text-center hover:bg-muted transition-colors">
+          <div class="text-xl font-bold text-foreground">{{analytics.additionalMetrics.uniqueTrainingDays}}</div>
+          <div class="text-sm text-muted-foreground">Training Days</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Progression Chart -->
+    <div class="mb-8" *ngIf="analytics.progression.monthlyProgression.length > 0">
+      <h3 class="text-xl font-semibold mb-4 text-foreground">Monthly Progression</h3>
+      <div class="bg-card border border-border p-4 rounded-xl">
+        <div class="h-96 w-full">
+          <canvas #progressionChart></canvas>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <ng-template #noData>
+    <div class="bg-muted/30 rounded-xl p-12 text-center">
+      <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-muted flex items-center justify-center">
+        <svg class="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      </div>
+      <h3 class="text-xl font-semibold text-foreground mb-2">No analytics data available</h3>
+      <p class="text-muted-foreground">Start logging workouts to see comprehensive analytics</p>
+    </div>
+  </ng-template>
+</section>

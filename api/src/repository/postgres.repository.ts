@@ -193,6 +193,16 @@ export class PostgresRepository {
     return exercisePRs;
   }
 
+  async getComprehensiveWorkoutAnalytics(userId: string, startDate?: string, endDate?: string): Promise<any> {
+    const result = await this.database.query(`SELECT analytics.get_comprehensive_workout_analytics($1, $2, $3)`, [
+      userId, 
+      startDate || null, 
+      endDate || null
+    ]);
+    
+    return result.rows.length ? result.rows[0].get_comprehensive_workout_analytics : {};
+  }
+
   async appendUser(user: User): Promise<boolean> {
     const result = await this.database.query(`SELECT * FROM admin.adduser($1, $2, $3, $4, $5)`, [user.id, user.email, user.displayName,
     user.createdAt, user.lastLoginAt

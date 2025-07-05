@@ -6,6 +6,7 @@ import './src/controllers/macros.controller';
 import './src/controllers/summary.controller';
 import './src/controllers/export.controller';
 import './src/controllers/user.controller';
+import './src/controllers/analytics.controller';
 import { InversifyExpressServer } from "inversify-express-utils";
 import {container} from "./src/config/inversify.config";
 import { Database } from "./src/config/Database";
