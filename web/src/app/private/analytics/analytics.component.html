@@ -20,9 +20,7 @@
       </div>
       }
       @else {
-      <app-weekly-muscle-sets
-        [weeklySummary]="weeklySummary"
-        [muscleGroups]="muscleGroups">
+      <app-weekly-muscle-sets [weeklySummary]="weeklySummary" [muscleGroups]="muscleGroups">
       </app-weekly-muscle-sets>
       }
     </div>
@@ -45,9 +43,7 @@
       </div>
       }
       @else {
-      <app-progressive-overload
-        [weeklySummary]="weeklySummary"
-        [muscleGroups]="muscleGroups"
+      <app-progressive-overload [weeklySummary]="weeklySummary" [muscleGroups]="muscleGroups"
         [progressiveOverloadStatus]="progressiveOverloadStatus">
       </app-progressive-overload>
       }
@@ -71,14 +67,12 @@
       </div>
       }
       @else {
-      <app-weekly-progress-chart
-        [weeklySummary]="weeklySummary"
-        [muscleGroups]="muscleGroups"
+      <app-weekly-progress-chart [weeklySummary]="weeklySummary" [muscleGroups]="muscleGroups"
         [(selectedMuscleGroup)]="selectedMuscleGroup">
       </app-weekly-progress-chart>
       }
     </div>
-<!-- 
+    <!-- 
     <div class="mb-8">
       @if(isLoading.weeklySummary) {
       <div class="card-modern p-8 shadow-2xl">
@@ -107,41 +101,22 @@
 
     <div class="mb-8">
 
-        <app-calendar-history
-          [(activeHistoryTab)]="activeHistoryTab"
-          [userWorkoutHistory]="userWorkoutHistory"
-          [userMacrosHistory]="userMacrosHistory"
-          [muscleGroups]="muscleGroups"
-          [isLoading]="isLoading.workoutHistory || isLoading.macrosHistory"
-          (monthChanged)="onCalendarMonthChanged($event)">
-        </app-calendar-history>
+      <app-calendar-history [(activeHistoryTab)]="activeHistoryTab" [userWorkoutHistory]="userWorkoutHistory"
+        [userMacrosHistory]="userMacrosHistory" [muscleGroups]="muscleGroups"
+        [isLoading]="isLoading.workoutHistory || isLoading.macrosHistory"
+        (monthChanged)="onCalendarMonthChanged($event)">
+      </app-calendar-history>
 
     </div>
 
     <div class="mb-8">
-     
-      <div [class.hidden]="!isLoading.exercisePRs" class="rounded-lg border bg-card text-card-foreground shadow-sm p-8">
-        <div class="flex flex-col items-center justify-center">
-          <div class="relative w-20 h-20">
-            <div class="absolute top-0 left-0 w-full h-full border-4 border-muted opacity-20 rounded-full"></div>
-            <div
-              class="absolute top-0 left-0 w-full h-full border-4 border-transparent border-t-primary rounded-full animate-spin"
-              style="animation-duration: 1s;"></div>
-            <div
-              class="absolute top-1/4 left-1/4 w-1/2 h-1/2 border-4 border-transparent border-t-primary/80 rounded-full animate-spin"
-              style="animation-duration: 0.8s; animation-direction: reverse;"></div>
-          </div>
-          <p class="mt-4 text-primary font-medium">Loading Exercise PRs...</p>
-        </div>
-      </div>
-      <div [class.hidden]="isLoading.exercisePRs">
-      <app-exercise-prs 
-        [exercisePRs]="exercisePRs"
-        (pageChanged)="onExercisePRsPageChanged($event)"
+
+
+
+      <app-exercise-prs [exercisePRs]="exercisePRs" (pageChanged)="onExercisePRsPageChanged($event)"
         (searchChanged)="onExercisePRsSearchChanged($event)">
       </app-exercise-prs>
-      </div>  
-      
+
     </div>
 
   </main>

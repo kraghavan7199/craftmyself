@@ -668,7 +668,8 @@ CREATE OR REPLACE FUNCTION exercise.getuserexerciseprs(
     p_user_id VARCHAR(36),
 	p_exercise_id VARCHAR(36) DEFAULT NULL,
     p_limit INT DEFAULT NULL,
-    p_skip INT DEFAULT 0
+    p_skip INT DEFAULT 0,
+    p_search_query VARCHAR(255) DEFAULT NULL
 )
 RETURNS TABLE (
     pr_id INT,
@@ -705,6 +706,7 @@ BEGIN
     INNER JOIN exercise.exercises e ON uep.exercise_id = e.id
     WHERE uep.user_id = p_user_id 
     AND ((p_exercise_id IS NULL) OR (uep.exercise_id = p_exercise_id))
+    AND ((p_search_query IS NULL) OR (p_search_query = '') OR (LOWER(e.name) LIKE '%' || LOWER(TRIM(p_search_query)) || '%'))
     ORDER BY uep.estimated_1rm DESC NULLS LAST, e.name ASC
     LIMIT CASE WHEN p_limit IS NOT NULL THEN p_limit ELSE NULL END
     OFFSET p_skip;
