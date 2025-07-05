@@ -61,7 +61,7 @@ async function startServer() {
             
         const data = container.get<FirestoreToPostgresTransferWorker>(TYPES.FirestoreToPostgresTransferWorker);
         await data.transfer();
-        }, 1000 * 60)
+        }, 1000 * 10)
         app.listen(PORT, () => {
             console.log(`🚀 Server is running on port ${PORT}`);
             console.log(`📡 API endpoints available at http://localhost:${PORT}`);
