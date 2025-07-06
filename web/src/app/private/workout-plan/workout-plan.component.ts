@@ -265,6 +265,7 @@ export class WorkoutPlanComponent {
     this.toast.success(`Added ${newExercise.exerciseName} to ${this.selectedDay.name}`);
     this.closeExerciseModal();
     this.saveWorkoutPlan();
+    this.isSelectingExercise = false;
   }
 
   removeExercise(day: WorkoutDay, exerciseId: string) {
