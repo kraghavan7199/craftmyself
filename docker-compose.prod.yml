@@ -60,26 +60,7 @@ services:
       - postgres
     restart: unless-stopped
 
-  metabase:
-    image: metabase/metabase:latest
-    container_name: metabase_prod
-    environment:
-      - MB_DB_TYPE=postgres
-      - MB_DB_DBNAME=metabase
-      - MB_DB_PORT=5432
-      - MB_DB_USER=${METABASE_DB_USER}
-      - MB_DB_PASS=${METABASE_DB_PASS}
-      - MB_DB_HOST=postgres
-      - MB_JETTY_HOST=0.0.0.0
-    ports:
-      - "3001:3000"
-    depends_on:
-      - postgres
-    volumes:
-      - metabase_data:/metabase-data
-    restart: unless-stopped
 
 volumes:
   postgres_data:
   pgadmin_data:
-  metabase_data:

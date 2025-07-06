@@ -8,7 +8,8 @@
       "Bash(chmod:*)",
       "Bash(mkdir:*)",
       "Bash(npm install:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

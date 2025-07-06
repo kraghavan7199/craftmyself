@@ -67,25 +67,7 @@ services:
     logging:
       driver: "none"
 
-  # Metabase BI service
-  metabase:
-    image: metabase/metabase:latest
-    container_name: metabase_container
-    environment:
-      - MB_DB_TYPE=postgres
-      - MB_DB_DBNAME=metabase
-      - MB_DB_PORT=5432
-      - MB_DB_USER=metabase_user
-      - MB_DB_PASS=metabase_password
-      - MB_DB_HOST=postgres
-    ports:
-      - "3001:3000"
-    depends_on:
-      - postgres
-    volumes:
-      - metabase_data:/metabase-data
 
 # Define the named volume at the top level
 volumes:
   postgres_data:
-  metabase_data:
