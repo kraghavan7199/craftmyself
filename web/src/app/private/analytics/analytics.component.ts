@@ -20,25 +20,27 @@ import { CalendarHistoryComponent } from "./components/calendar-history.componen
 import { ExercisePRsComponent } from "./components/exercise-prs.component";
 import { ComprehensiveAnalyticsComponent } from "./components/comprehensive-analytics.component";
 import { ComprehensiveAnalytics } from "../../shared/interfaces/ComprehensiveAnalytics";
+import { PageWrapperComponent } from "../../shared/components/page-wrapper.component";
 
 Chart.register(...registerables);
 @Component({
     selector: 'app-analytics',
     imports: [
-        RouterOutlet,
-        FormsModule,
-        ReactiveFormsModule,
-        CommonModule,
-        AnalyticsHeaderComponent,
-        WeeklyMuscleSetsComponent,
-        ProgressiveOverloadComponent,
-        WeeklyProgressChartComponent,
-        MacrosWeeklyChartComponent,
-        CombinedHistoryComponent,
-        CalendarHistoryComponent,
-        ExercisePRsComponent,
-        ComprehensiveAnalyticsComponent
-    ],
+    RouterOutlet,
+    FormsModule,
+    ReactiveFormsModule,
+    CommonModule,
+    AnalyticsHeaderComponent,
+    WeeklyMuscleSetsComponent,
+    ProgressiveOverloadComponent,
+    WeeklyProgressChartComponent,
+    MacrosWeeklyChartComponent,
+    CombinedHistoryComponent,
+    CalendarHistoryComponent,
+    ExercisePRsComponent,
+    ComprehensiveAnalyticsComponent,
+    PageWrapperComponent
+],
     templateUrl: './analytics.component.html'
 })
 export class AnalyticsComponent {

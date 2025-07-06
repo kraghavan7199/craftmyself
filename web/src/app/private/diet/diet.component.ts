@@ -9,10 +9,11 @@ import { selectUser } from "../../store/selectors";
 import { Macros } from "../../shared/interfaces/UserMacros";
 import { ToastService } from "../../services/toast.service";
 import { v4 as uuidv4 } from 'uuid';
+import { PageWrapperComponent } from "../../shared/animations";
 
 @Component({
     selector: 'app-diet',
-    imports: [RouterOutlet, FormsModule, ReactiveFormsModule, CommonModule],
+    imports: [RouterOutlet, FormsModule, ReactiveFormsModule, CommonModule, PageWrapperComponent],
     templateUrl: './diet.component.html'
 })
 export class DietComponent {

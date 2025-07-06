@@ -1,8 +1,9 @@
+<app-page-wrapper>
 <div class="min-h-screen bg-background">
   <app-analytics-header></app-analytics-header>
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
-    <div class="mb-8">
+    <div class="mb-8 animate-slide-left animate-delayed-1">
       @if(isLoading.weeklySummary) {
       <div class="rounded-lg border bg-card text-card-foreground shadow-sm p-8">
         <div class="flex flex-col items-center justify-center">
@@ -25,7 +26,7 @@
       }
     </div>
 
-    <div class="mb-8">
+    <div class="mb-8 animate-slide-right animate-delayed-1">
       @if(isLoading.weeklySummary) {
       <div class="rounded-lg border bg-card text-card-foreground shadow-sm p-8">
         <div class="flex flex-col items-center justify-center">
@@ -49,7 +50,7 @@
       }
     </div>
 
-    <div class="mb-8">
+    <div class="mb-8 animate-slide-left animate-delayed-1">
       @if(isLoading.weeklySummary) {
       <div class="rounded-lg border bg-card text-card-foreground shadow-sm p-8">
         <div class="flex flex-col items-center justify-center">
@@ -99,7 +100,7 @@
       }
     </div> -->
 
-    <div class="mb-8">
+    <div class="mb-8 animate-slide-right animate-delayed-1">
 
       <app-calendar-history [(activeHistoryTab)]="activeHistoryTab" [userWorkoutHistory]="userWorkoutHistory"
         [userMacrosHistory]="userMacrosHistory" [muscleGroups]="muscleGroups"
@@ -109,7 +110,7 @@
 
     </div>
 
-    <div class="mb-8">
+    <div class="mb-8 animate-slide-left animate-delayed-1">
 
 
 
@@ -119,7 +120,7 @@
     </div>
 
     <!-- Comprehensive Analytics Section -->
-    <div class="mb-8">
+    <div class="mb-8 animate-slide-right animate-delayed-1">
     
 
         <app-comprehensive-analytics 
@@ -131,3 +132,4 @@
 
   </main>
 </div>
+</app-page-wrapper>

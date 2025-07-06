@@ -11,10 +11,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { ToastService } from "../../services/toast.service";
 import { UserExerciseSummary } from "../../shared/interfaces/UserExerciseSummary";
 import { debounceTime } from 'rxjs/operators';
+import { PageWrapperComponent } from "../../shared/animations";
 
 @Component({
     selector: 'app-home',
-    imports: [RouterOutlet, FormsModule, ReactiveFormsModule, CommonModule],
+    imports: [RouterOutlet, FormsModule, ReactiveFormsModule, CommonModule, PageWrapperComponent],
     templateUrl: './home.component.html'
 })
 export class HomeComponent {

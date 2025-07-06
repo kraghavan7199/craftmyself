@@ -9,6 +9,7 @@ import { selectUser } from "../../store/selectors";
 import { ExerciseEntry, UserWorkout } from "../../shared/interfaces/UserWorkout";
 import { Timestamp } from "@angular/fire/firestore";
 import { debounceTime } from 'rxjs/operators';
+import { PageWrapperComponent } from "../../shared/components/page-wrapper.component";
 
 interface WorkoutDay {
   name: string;
@@ -27,7 +28,7 @@ interface PlannedExercise {
 
 @Component({
     selector: 'app-workout-plan',
-    imports: [CommonModule, FormsModule, ReactiveFormsModule],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, PageWrapperComponent],
     templateUrl: './workout-plan.component.html'
 })
 export class WorkoutPlanComponent {

@@ -1,31 +1,59 @@
 <!-- login.component.html -->
-<div class="min-h-screen bg-background flex items-center justify-center p-4">
-  <!-- Back to Home Button -->
-  <div class="absolute top-6 left-6 z-10">
-    <button routerLink="/" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-      </svg>
-      Back to Home
-    </button>
-  </div>
+<app-page-wrapper>
+  <div class="min-h-screen bg-background flex items-center justify-center p-4">
+    <!-- Back to Home Button -->
+    <div class="absolute top-6 left-6 z-10">
+      <button 
+        routerLink="/" 
+        appScrollAnimation
+        animationType="slideLeft"
+        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to Home
+      </button>
+    </div>
 
-  <!-- Main Auth Card -->
-  <div class="w-full max-w-md space-y-6">
-    <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
-      <div class="flex flex-col space-y-1.5 p-6">
-        <div class="flex items-center justify-center space-x-2 mb-4">
-          <h1 class="text-2xl font-semibold">CraftMyself</h1>
+    <!-- Main Auth Card -->
+    <div class="w-full max-w-md space-y-6">
+      <div 
+        [@scaleIn]
+        class="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div class="flex flex-col space-y-1.5 p-6">
+          <div 
+            appScrollAnimation
+            animationType="fadeIn"
+            [delay]="200"
+            class="flex items-center justify-center space-x-2 mb-4">
+            <h1 class="text-2xl font-semibold">CraftMyself</h1>
+          </div>
+          
+          <h2 
+            appScrollAnimation
+            animationType="slideUp"
+            [delay]="300"
+            class="text-2xl font-semibold leading-none tracking-tight text-center">
+            Welcome Back
+          </h2>
+          <p 
+            appScrollAnimation
+            animationType="fadeIn"
+            [delay]="400"
+            class="text-sm text-muted-foreground text-center">
+            Sign in to continue your fitness journey
+          </p>
         </div>
-        
-        <h2 class="text-2xl font-semibold leading-none tracking-tight text-center">Welcome Back</h2>
-        <p class="text-sm text-muted-foreground text-center">Sign in to continue your fitness journey</p>
-      </div>
 
-      <div class="p-6 pt-0">
-        <!-- Google Sign-In Button -->
-        <button (click)="login()" class="w-full inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-          <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <div class="p-6 pt-0">
+          <!-- Google Sign-In Button -->
+          <button 
+            (click)="login()" 
+            appScrollAnimation
+            animationType="scaleIn"
+            [delay]="500"
+            class="w-full inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 hover:scale-105 transition-transform">
+            <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
               <path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z"/>
               <path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z"/>
@@ -37,7 +65,11 @@
         </button>
 
         <!-- Divider -->
-        <div class="relative my-6">
+        <div 
+          appScrollAnimation
+          animationType="fadeIn"
+          [delay]="600"
+          class="relative my-6">
           <div class="absolute inset-0 flex items-center">
             <div class="w-full border-t border-border"></div>
           </div>
@@ -48,8 +80,12 @@
 
         <!-- Features -->
         <div class="grid grid-cols-2 gap-4">
-          <div class="text-center">
-            <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-2">
+          <div 
+            appScrollAnimation
+            animationType="slideUp"
+            [delay]="700"
+            class="text-center">
+            <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-2 transition-transform hover:scale-110">
               <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
@@ -58,8 +94,12 @@
             <p class="text-xs text-muted-foreground">Privacy protected</p>
           </div>
           
-          <div class="text-center">
-            <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-2">
+          <div 
+            appScrollAnimation
+            animationType="slideUp"
+            [delay]="800"
+            class="text-center">
+            <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-2 transition-transform hover:scale-110">
               <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
@@ -71,7 +111,11 @@
       </div>
 
       <!-- Footer -->
-      <div class="flex items-center p-6 pt-0">
+      <div 
+        appScrollAnimation
+        animationType="fadeIn"
+        [delay]="900"
+        class="flex items-center p-6 pt-0">
         <div class="w-full">
           <p class="text-center text-xs text-muted-foreground mb-3">
             By continuing, you agree to our
@@ -86,7 +130,11 @@
     </div>
 
     <!-- Trust Indicators -->
-    <div class="flex justify-center space-x-6 text-xs text-muted-foreground">
+    <div 
+      appScrollAnimation
+      animationType="slideUp"
+      [delay]="1000"
+      class="flex justify-center space-x-6 text-xs text-muted-foreground">
       <div class="flex items-center space-x-1">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -102,3 +150,4 @@
     </div>
   </div>
 </div>
+</app-page-wrapper>
