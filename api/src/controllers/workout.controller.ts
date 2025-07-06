@@ -55,7 +55,8 @@ export class WorkoutController {
     @httpGet('/user/:userId/current')
     public async getCurrentUserWorkout(@requestParam('userId') userId: string, @request() req: express.Request, @response() res: express.Response) {
         try {
-            const workout = await this.postgresRepo.getCurrentDayUserWorkout(userId);
+            const { timezone } = req.query;
+            const workout = await this.postgresRepo.getCurrentDayUserWorkout(userId, timezone as string);
             res.status(200).json(workout);
         }
         catch (error) {
@@ -123,7 +124,7 @@ export class WorkoutController {
     @httpGet('/user/:userId/history')
     public async getUserWorkoutHistory(@requestParam('userId') userId: string, @request() req: express.Request, @response() res: express.Response) {
         try {
-            const { criteria } = req.query;
+            const { criteria, timezone } = req.query;
             let searchCriteria: any;
 
             if (criteria) {
@@ -135,13 +136,15 @@ export class WorkoutController {
                     weekStart: parsedCriteria.startDate,
                     weekEnd: parsedCriteria.endDate ,
                     skip: parsedCriteria.skip,
-                    limit: parsedCriteria.workoutLimit || 5
+                    limit: parsedCriteria.workoutLimit || 5,
+                    timezone: timezone as string
                 };
             } else {
                 searchCriteria = {
                     userId,
                     skip: 0,
-                    limit: 5
+                    limit: 5,
+                    timezone: timezone as string
                 };
             }
 

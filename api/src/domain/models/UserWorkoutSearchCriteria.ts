@@ -5,4 +5,5 @@ export interface  UserWorkoutSearchCriteria {
     weekEnd?: Date;
     skip: number;
     limit: number;
+    timezone?: string;
 }

@@ -20,6 +20,10 @@ export class FirestoreService {
 
     constructor(private httpClient: HttpClient) { }
 
+    private getUserTimezone(): string {
+        return Intl.DateTimeFormat().resolvedOptions().timeZone;
+    }
+
 
     createUserRecord(userId: string) {
        return this.httpClient.post(`${environment.apiUrl}/user`, {userId});
@@ -46,7 +50,8 @@ export class FirestoreService {
     }
 
     getCurrentDayUserWorkout(userId: string): Observable<UserWorkout> {
-        return this.httpClient.get<UserWorkout>(`${environment.apiUrl}/workout/user/${userId}/current`);
+        const timezone = this.getUserTimezone();
+        return this.httpClient.get<UserWorkout>(`${environment.apiUrl}/workout/user/${userId}/current?timezone=${encodeURIComponent(timezone)}`);
     }
 
     updateWorkout(workoutId: string, workout: UserWorkout) {
@@ -76,7 +81,8 @@ export class FirestoreService {
             startDate, 
             endDate 
         }
-        return this.httpClient.get<UserWorkoutHistory>(`${environment.apiUrl}/workout/user/${userId}/history?criteria=${JSON.stringify(payload)}`)
+        const timezone = this.getUserTimezone();
+        return this.httpClient.get<UserWorkoutHistory>(`${environment.apiUrl}/workout/user/${userId}/history?criteria=${JSON.stringify(payload)}&timezone=${encodeURIComponent(timezone)}`)
     }
 
     getUserExerciseHistory(exerciseId: string, userId: string): Observable<UserExerciseSummary> {
@@ -102,7 +108,8 @@ export class FirestoreService {
     }
 
     getWeeklyPlan(userId: string, date: Date): Observable<any> {
-        return this.httpClient.get(`${environment.apiUrl}/workout/weekly/plan/${userId}?date=${date.toISOString()}`);
+        const timezone = this.getUserTimezone();
+        return this.httpClient.get(`${environment.apiUrl}/workout/weekly/plan/${userId}?date=${date.toISOString()}&timezone=${encodeURIComponent(timezone)}`);
     }
 
      exportData(userId: string): Observable<any> {

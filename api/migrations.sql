@@ -114,7 +114,8 @@ CREATE OR REPLACE FUNCTION workout.getuserworkouts(
 	p_week_start date DEFAULT NULL::date,
 	p_week_end date DEFAULT NULL::date,
 	p_limit integer DEFAULT NULL::integer,
-	p_skip integer DEFAULT 0)
+	p_skip integer DEFAULT 0,
+	p_timezone text DEFAULT 'UTC')
     RETURNS TABLE(workout_id character varying, user_id character varying, created_at timestamp without time zone, updated_at timestamp without time zone, muscle_group_sets jsonb, muscle_group_volumes jsonb, exercises jsonb) 
     LANGUAGE 'plpgsql'
     COST 100
@@ -128,9 +129,9 @@ BEGIN
         SELECT * 
         FROM workout.user_workouts uw
         WHERE uw.user_id = p_user_id
-           AND ((p_date IS NULL) OR (DATE(uw.created_at) = DATE(p_date)))
-    AND ((p_week_start IS NULL) OR (DATE(uw.created_at) >= DATE(p_week_start)))
-    AND ((p_week_end IS NULL) OR (DATE(uw.created_at) <= DATE(p_week_end)))
+           AND ((p_date IS NULL) OR (DATE(uw.created_at AT TIME ZONE 'UTC' AT TIME ZONE p_timezone) = DATE(p_date)))
+    AND ((p_week_start IS NULL) OR (DATE(uw.created_at AT TIME ZONE 'UTC' AT TIME ZONE p_timezone) >= DATE(p_week_start)))
+    AND ((p_week_end IS NULL) OR (DATE(uw.created_at AT TIME ZONE 'UTC' AT TIME ZONE p_timezone) <= DATE(p_week_end)))
          ORDER BY uw.created_at DESC
         LIMIT CASE WHEN p_limit IS NOT NULL THEN p_limit ELSE NULL END
         OFFSET p_skip

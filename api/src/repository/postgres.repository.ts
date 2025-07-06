@@ -39,9 +39,9 @@ export class PostgresRepository {
 
 
   async getUserWorkouts(userWorkoutSearchCriteria: UserWorkoutSearchCriteria): Promise<UserWorkout[]> {
-    const result = await this.database.query(`SELECT * FROM workout.getuserworkouts($1, $2, $3, $4, $5, $6)`, [userWorkoutSearchCriteria.userId,
+    const result = await this.database.query(`SELECT * FROM workout.getuserworkouts($1, $2, $3, $4, $5, $6, $7)`, [userWorkoutSearchCriteria.userId,
     userWorkoutSearchCriteria.date, userWorkoutSearchCriteria.weekStart, userWorkoutSearchCriteria.weekEnd, userWorkoutSearchCriteria.limit,
-    userWorkoutSearchCriteria.skip
+    userWorkoutSearchCriteria.skip, userWorkoutSearchCriteria.timezone || 'UTC'
     ]);
     return result.rows.map((row: any) => (<UserWorkout>{
       id: row.workout_id,
@@ -75,8 +75,8 @@ export class PostgresRepository {
     }
   }
 
-  async getCurrentDayUserWorkout(userId: string): Promise<UserWorkout | null> {
-    const criteria = <UserWorkoutSearchCriteria>{ userId: userId, date: new Date() };
+  async getCurrentDayUserWorkout(userId: string, timezone?: string): Promise<UserWorkout | null> {
+    const criteria = <UserWorkoutSearchCriteria>{ userId: userId, date: new Date(), timezone: timezone || 'UTC' };
     const workouts = await this.getUserWorkouts(criteria);
     return workouts.length ? workouts[0] : null;
   }
