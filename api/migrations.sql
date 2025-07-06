@@ -1524,3 +1524,215 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION admin.export_user_data(
+    p_user_id VARCHAR(36)
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_result JSONB := '{}'::JSONB;
+    v_user_data JSONB;
+    v_workouts JSONB;
+    v_exercises JSONB;
+    v_macros JSONB;
+    v_exercise_prs JSONB;
+    v_weekly_summaries JSONB;
+    v_workout_plans JSONB;
+BEGIN
+    -- 1. Get user profile data
+    SELECT jsonb_build_object(
+        'userId', u.id,
+        'email', u.email,
+        'displayName', u.display_name,
+        'createdAt', u.created_at,
+        'lastLogin', u.last_login
+    ) INTO v_user_data
+    FROM admin.users u
+    WHERE u.id = p_user_id;
+
+    -- 2. Get all user workouts with exercises and sets
+    WITH workout_data AS (
+        SELECT 
+            uw.id as workout_id,
+            uw.user_id,
+            uw.created_at,
+            uw.updated_at,
+            uw.muscle_group_sets,
+            uw.muscle_group_volumes,
+            COALESCE(
+                JSONB_AGG(
+                    JSONB_BUILD_OBJECT(
+                        'exerciseId', uwe.exercise_id,
+                        'exerciseName', e.name,
+                        'muscleGroupName', e.muscleGroupName,
+                        'muscleGroupCode', e.muscleGroupCode,
+                        'userWorkoutExerciseId', uwe.id,
+                        'sets', COALESCE(sets_data.sets, '[]'::jsonb)
+                    ) ORDER BY uwe.id
+                ) FILTER (WHERE uwe.exercise_id IS NOT NULL),
+                '[]'::jsonb
+            ) AS exercises
+        FROM workout.user_workouts uw
+        LEFT JOIN exercise.user_workout_exercises uwe ON uw.id = uwe.user_workout_id
+        LEFT JOIN exercise.exercises e ON uwe.exercise_id = e.id
+        LEFT JOIN (
+            SELECT 
+                uwes.user_workout_exercise_id,
+                JSONB_AGG(
+                    JSONB_BUILD_OBJECT(
+                        'id', uwes.id,
+                        'setNumber', uwes.set_number,
+                        'reps', uwes.reps,
+                        'weight', uwes.weight,
+                        'createdAt', uwes.created_at
+                    ) ORDER BY uwes.set_number
+                ) AS sets
+            FROM exercise.user_workout_exercise_set uwes
+            GROUP BY uwes.user_workout_exercise_id
+        ) sets_data ON uwe.id = sets_data.user_workout_exercise_id
+        WHERE uw.user_id = p_user_id
+        GROUP BY uw.id, uw.user_id, uw.created_at, uw.updated_at, uw.muscle_group_sets, uw.muscle_group_volumes
+        ORDER BY uw.created_at DESC
+    )
+    SELECT COALESCE(JSONB_AGG(
+        JSONB_BUILD_OBJECT(
+            'workoutId', wd.workout_id,
+            'userId', wd.user_id,
+            'createdAt', wd.created_at,
+            'updatedAt', wd.updated_at,
+            'muscleGroupSets', wd.muscle_group_sets,
+            'muscleGroupVolumes', wd.muscle_group_volumes,
+            'exercises', wd.exercises
+        )
+    ), '[]'::jsonb) INTO v_workouts
+    FROM workout_data wd;
+
+    -- 3. Get all user macros
+    SELECT COALESCE(JSONB_AGG(
+        JSONB_BUILD_OBJECT(
+            'macroId', udm.id,
+            'userId', udm.user_id,
+            'date', udm.date,
+            'createdAt', udm.created_at,
+            'updatedAt', udm.updated_at,
+            'macros', udm.macros,
+            'totals', udm.totals
+        ) ORDER BY udm.date DESC
+    ), '[]'::jsonb) INTO v_macros
+    FROM macros.user_daily_macros udm
+    WHERE udm.user_id = p_user_id;
+
+    -- 4. Get all user exercise PRs
+    SELECT COALESCE(JSONB_AGG(
+        JSONB_BUILD_OBJECT(
+            'prId', uep.id,
+            'userId', uep.user_id,
+            'exerciseId', uep.exercise_id,
+            'exerciseName', e.name,
+            'muscleGroupName', e.muscleGroupName,
+            'muscleGroupCode', e.muscleGroupCode,
+            'weightPR', uep.weight_pr,
+            'weightPRDate', uep.weight_pr_date,
+            'weightPRReps', uep.weight_pr_reps,
+            'volumePR', uep.volume_pr,
+            'volumePRDate', uep.volume_pr_date,
+            'estimated1RM', uep.estimated_1rm,
+            'estimated1RMDate', uep.estimated_1rm_date,
+            'lastCalculated', uep.last_calculated
+        ) ORDER BY uep.estimated_1rm DESC NULLS LAST
+    ), '[]'::jsonb) INTO v_exercise_prs
+    FROM exercise.user_exercise_prs uep
+    INNER JOIN exercise.exercises e ON uep.exercise_id = e.id
+    WHERE uep.user_id = p_user_id;
+
+    -- 5. Get all user weekly summaries
+    SELECT COALESCE(JSONB_AGG(
+        JSONB_BUILD_OBJECT(
+            'summaryId', uws.id,
+            'userId', uws.user_id,
+            'weekStartDate', uws.week_start_date,
+            'weekEndDate', uws.week_end_date,
+            'muscleGroupSets', uws.muscle_group_sets,
+            'muscleGroupVolumes', uws.muscle_group_volumes,
+            'weekNumber', EXTRACT(WEEK FROM uws.week_start_date),
+            'year', EXTRACT(YEAR FROM uws.week_start_date)
+        ) ORDER BY uws.week_start_date DESC
+    ), '[]'::jsonb) INTO v_weekly_summaries
+    FROM summary.user_weekly_summary uws
+    WHERE uws.user_id = p_user_id;
+
+    -- 6. Get all user workout plans
+    WITH workout_plan_data AS (
+        SELECT 
+            uwp.id as plan_id,
+            uwp.user_id,
+            uwp.date,
+            uwp.created_at,
+            uwp.updated_at,
+            COALESCE(
+                JSONB_AGG(
+                    JSONB_BUILD_OBJECT(
+                        'exerciseId', uwpe.exercise_id,
+                        'exerciseName', e.name,
+                        'muscleGroupName', e.muscleGroupName,
+                        'muscleGroupCode', e.muscleGroupCode
+                    ) ORDER BY e.name
+                ) FILTER (WHERE uwpe.exercise_id IS NOT NULL),
+                '[]'::jsonb
+            ) AS exercises
+        FROM workout.user_workout_plans uwp
+        LEFT JOIN workout.user_workout_plan_exercises uwpe ON uwp.id = uwpe.user_workout_plan_id
+        LEFT JOIN exercise.exercises e ON uwpe.exercise_id = e.id
+        WHERE uwp.user_id = p_user_id
+        GROUP BY uwp.id, uwp.user_id, uwp.date, uwp.created_at, uwp.updated_at
+        ORDER BY uwp.date DESC
+    )
+    SELECT COALESCE(JSONB_AGG(
+        JSONB_BUILD_OBJECT(
+            'planId', wpd.plan_id,
+            'userId', wpd.user_id,
+            'date', wpd.date,
+            'createdAt', wpd.created_at,
+            'updatedAt', wpd.updated_at,
+            'exercises', wpd.exercises
+        )
+    ), '[]'::jsonb) INTO v_workout_plans
+    FROM workout_plan_data wpd;
+
+    -- 7. Get all available exercises (for reference)
+    SELECT COALESCE(JSONB_AGG(
+        JSONB_BUILD_OBJECT(
+            'exerciseId', e.id,
+            'exerciseName', e.name,
+            'muscleGroupName', e.muscleGroupName,
+            'muscleGroupCode', e.muscleGroupCode
+        ) ORDER BY e.name
+    ), '[]'::jsonb) INTO v_exercises
+    FROM exercise.exercises e;
+
+    -- Combine all data into final result
+    v_result := JSONB_BUILD_OBJECT(
+        'exportDate', CURRENT_TIMESTAMP,
+        'userId', p_user_id,
+        'userData', COALESCE(v_user_data, '{}'::jsonb),
+        'workouts', COALESCE(v_workouts, '[]'::jsonb),
+        'macros', COALESCE(v_macros, '[]'::jsonb),
+        'exercisePRs', COALESCE(v_exercise_prs, '[]'::jsonb),
+        'weeklySummaries', COALESCE(v_weekly_summaries, '[]'::jsonb),
+        'workoutPlans', COALESCE(v_workout_plans, '[]'::jsonb),
+        'exercises', COALESCE(v_exercises, '[]'::jsonb),
+        'metadata', JSONB_BUILD_OBJECT(
+            'totalWorkouts', (SELECT COUNT(*) FROM workout.user_workouts WHERE user_id = p_user_id),
+            'totalMacroEntries', (SELECT COUNT(*) FROM macros.user_daily_macros WHERE user_id = p_user_id),
+            'totalExercisePRs', (SELECT COUNT(*) FROM exercise.user_exercise_prs WHERE user_id = p_user_id),
+            'totalWeeklySummaries', (SELECT COUNT(*) FROM summary.user_weekly_summary WHERE user_id = p_user_id),
+            'totalWorkoutPlans', (SELECT COUNT(*) FROM workout.user_workout_plans WHERE user_id = p_user_id),
+            'dataVersion', '1.0'
+        )
+    );
+
+    RETURN v_result;
+END;
+$$;
+

@@ -222,5 +222,9 @@ export class PostgresRepository {
     }));
   }
 
+  async exportUserData(userId: string): Promise<any> {
+    const result = await this.database.query(`SELECT * FROM admin.export_user_data($1)`, [userId]);
+    return result.rows.length ? result.rows[0].export_user_data : {};
+  }
 
 }
