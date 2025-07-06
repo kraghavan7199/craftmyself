@@ -8,6 +8,7 @@ import { Exercise } from "../../shared/interfaces/Exercise";
 import { selectUser } from "../../store/selectors";
 import { ExerciseEntry, UserWorkout } from "../../shared/interfaces/UserWorkout";
 import { Timestamp } from "@angular/fire/firestore";
+import { debounceTime } from 'rxjs/operators';
 
 interface WorkoutDay {
   name: string;
@@ -47,6 +48,7 @@ export class WorkoutPlanComponent {
   showAutocomplete = false;
   currentUserId: string = '';
   currentWeekStart: Date = new Date();
+  isSelectingExercise = false;
 
   exerciseForm: FormGroup;
   currentWeekEnd = new Date();
@@ -76,8 +78,12 @@ export class WorkoutPlanComponent {
     this.setCurrentWeek();
     this.updateWeekDates();
     this.setTodayHighlight();
-    this.exerciseForm.get('exercise')?.valueChanges.subscribe(value => {
-      this.filterExercises(value);
+    this.exerciseForm.get('exercise')?.valueChanges.pipe(
+      debounceTime(300)
+    ).subscribe(value => {
+      // Don't filter if we just selected an exercise
+        this.filterExercises(value);
+      
     });
   }
 
@@ -180,11 +186,13 @@ export class WorkoutPlanComponent {
 
 
   filterExercises(searchText: string): void {
-    if (!searchText) {
-      this.filteredExercises = [];
+    this.filteredExercises = []
       this.showAutocomplete = false;
-      return;
-    }
+
+      if((!searchText || searchText.trim() === '') || this.isSelectingExercise) {
+       
+        return;
+      }
 
     // Use server-side search instead of client-side filtering
     this.firestoreService.getExercises(0, 50, searchText).subscribe((response) => {
@@ -196,9 +204,12 @@ export class WorkoutPlanComponent {
   }
 
   selectExercise(exercise: Exercise): void {
+    this.isSelectingExercise = true;
     this.exerciseForm.get('exercise')?.setValue(exercise.name);
     this.exerciseForm.get('exerciseId')?.setValue(exercise.id);
     this.showAutocomplete = false;
+    this.filteredExercises = [];
+  
   }
 
   onFocusExerciseInput(): void {

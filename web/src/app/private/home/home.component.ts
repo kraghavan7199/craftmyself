@@ -10,6 +10,7 @@ import { selectUser } from "../../store/selectors";
 import { v4 as uuidv4 } from 'uuid';
 import { ToastService } from "../../services/toast.service";
 import { UserExerciseSummary } from "../../shared/interfaces/UserExerciseSummary";
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
     selector: 'app-home',
@@ -50,7 +51,9 @@ export class HomeComponent {
 
     this.isLoading.workoutLog = true;
     this.isLoading.exerciseForm = true;
-    this.exerciseForm.get('exercise')?.valueChanges.subscribe(value => {
+    this.exerciseForm.get('exercise')?.valueChanges.pipe(
+      debounceTime(300)
+    ).subscribe(value => {
       this.filterExercises(value);
     });
   }

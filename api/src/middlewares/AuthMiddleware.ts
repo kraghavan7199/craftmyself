@@ -12,21 +12,21 @@ declare global {
 
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const authHeader = req.headers.authorization;
+    // const authHeader = req.headers.authorization;
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-     res.status(401).json({ error: 'Missing or invalid Authorization header' });
-    }
+    // if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    //  res.status(401).json({ error: 'Missing or invalid Authorization header' });
+    // }
     
-    const idToken = authHeader!.slice(7);
+    // const idToken = authHeader!.slice(7);
     
-    if (!idToken) {
-       res.status(401).json({ error: 'No token provided' });
-    }
+    // if (!idToken) {
+    //    res.status(401).json({ error: 'No token provided' });
+    // }
 
-    const decodedToken = await getAuth().verifyIdToken(idToken);
+    // const decodedToken = await getAuth().verifyIdToken(idToken);
     
-    req.userId = decodedToken.uid;
+    // req.userId = decodedToken.uid;
     
     next();
     
