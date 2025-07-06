@@ -836,26 +836,72 @@ RETURNS TABLE (
 ) AS $$
 BEGIN
     RETURN QUERY
+    WITH week_dates AS (
+        SELECT 
+            generate_series(
+                DATE_TRUNC('week', p_date)::DATE,
+                (DATE_TRUNC('week', p_date) + INTERVAL '6 days')::DATE,
+                INTERVAL '1 day'
+            )::DATE AS date
+    ),
+    actual_workouts AS (
+        SELECT 
+            DATE(uw.created_at) AS workout_date,
+            COALESCE(
+                JSONB_AGG(
+                    JSONB_BUILD_OBJECT(
+                        'exerciseId', uwe.exercise_id,
+                        'exerciseName', e.name,
+                        'muscleGroupName', e.muscleGroupName,
+                        'muscleGroupCode', e.muscleGroupCode
+                    )
+                    ORDER BY e.name
+                ) FILTER (WHERE uwe.exercise_id IS NOT NULL),
+                '[]'::JSONB
+            ) AS exercises
+        FROM workout.user_workouts uw
+        LEFT JOIN exercise.user_workout_exercises uwe ON uw.id = uwe.user_workout_id
+        LEFT JOIN exercise.exercises e ON uwe.exercise_id = e.id
+        WHERE uw.user_id = p_user_id
+        AND DATE(uw.created_at) >= DATE_TRUNC('week', p_date)
+        AND DATE(uw.created_at) < DATE_TRUNC('week', p_date) + INTERVAL '7 days'
+        GROUP BY DATE(uw.created_at)
+    ),
+    planned_workouts AS (
+        SELECT 
+            uwp.date AS workout_date,
+            COALESCE(
+                JSONB_AGG(
+                    JSONB_BUILD_OBJECT(
+                        'exerciseId', uwpe.exercise_id,
+                        'exerciseName', e.name,
+                        'muscleGroupName', e.muscleGroupName,
+                        'muscleGroupCode', e.muscleGroupCode
+                    )
+                    ORDER BY e.name
+                ) FILTER (WHERE uwpe.exercise_id IS NOT NULL),
+                '[]'::JSONB
+            ) AS exercises
+        FROM workout.user_workout_plans uwp
+        LEFT JOIN workout.user_workout_plan_exercises uwpe ON uwp.id = uwpe.user_workout_plan_id
+        LEFT JOIN exercise.exercises e ON uwpe.exercise_id = e.id
+        WHERE uwp.user_id = p_user_id
+        AND uwp.date >= DATE_TRUNC('week', p_date)
+        AND uwp.date < DATE_TRUNC('week', p_date) + INTERVAL '7 days'
+        GROUP BY uwp.date
+    )
     SELECT 
-        uwp.date AS workout_date,
+        wd.date AS workout_date,
         COALESCE(
-            JSONB_AGG(
-                JSONB_BUILD_OBJECT(
-                    'exerciseId', uwpe.exercise_id,
-                    'exerciseName', e.name
-                )
-                ORDER BY e.name
-            ) FILTER (WHERE uwpe.exercise_id IS NOT NULL),
+            aw.exercises,
+            pw.exercises,
             '[]'::JSONB
         ) AS exercises
-    FROM workout.user_workout_plans uwp
-    LEFT JOIN workout.user_workout_plan_exercises uwpe ON uwp.id = uwpe.user_workout_plan_id
-    LEFT JOIN exercise.exercises e ON uwpe.exercise_id = e.id
-    WHERE uwp.user_id = p_user_id
-    AND uwp.date >= DATE_TRUNC('week', p_date)
-    AND uwp.date < DATE_TRUNC('week', p_date) + INTERVAL '7 days'
-    GROUP BY uwp.date
-    ORDER BY uwp.date;
+    FROM week_dates wd
+    LEFT JOIN actual_workouts aw ON wd.date = aw.workout_date
+    LEFT JOIN planned_workouts pw ON wd.date = pw.workout_date
+    WHERE aw.exercises IS NOT NULL OR pw.exercises IS NOT NULL
+    ORDER BY wd.date;
 END;
 $$ LANGUAGE plpgsql;
 
