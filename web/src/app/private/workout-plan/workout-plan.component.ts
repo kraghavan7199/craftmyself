@@ -166,9 +166,9 @@ export class WorkoutPlanComponent {
   loadExercises() {
     try {
       this.isLoading.exercises = true;
-      this.firestoreService.getExercises().subscribe((exercises) => {
-        if (exercises && exercises.length) {
-          this.exercises = exercises;
+      this.firestoreService.getExercises(0, 10).subscribe((response) => {
+        if (response && response.data) {
+          this.exercises = response.data;
         }
         this.isLoading.exercises = false;
       });
@@ -186,11 +186,13 @@ export class WorkoutPlanComponent {
       return;
     }
 
-    searchText = searchText.toLowerCase();
-    this.filteredExercises = this.exercises.filter(exercise =>
-      exercise.name.toLowerCase().includes(searchText)
-    );
-    this.showAutocomplete = this.filteredExercises.length > 0;
+    // Use server-side search instead of client-side filtering
+    this.firestoreService.getExercises(0, 50, searchText).subscribe((response) => {
+      if (response && response.data) {
+        this.filteredExercises = response.data;
+        this.showAutocomplete = this.filteredExercises.length > 0;
+      }
+    });
   }
 
   selectExercise(exercise: Exercise): void {

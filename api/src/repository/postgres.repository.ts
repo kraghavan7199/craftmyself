@@ -21,8 +21,12 @@ export class PostgresRepository {
 
   constructor(@inject(TYPES.Database) private database: Database) { }
 
-  async getExercises(): Promise<Exercise[]> {
-    const result = await this.database.query('SELECT * FROM exercise.exercises');
+  async getExercises(limit?: number, skip?: number, searchQuery?: string): Promise<Exercise[]> {
+    const result = await this.database.query('SELECT * FROM exercise.getexercises($1, $2, $3)', [
+      limit || 10,
+      skip || 0,
+      searchQuery || null
+    ]);
     return result.rows.map((row: { id: any; name: any; musclegroupname: any; musclegroupcode: any; }) => ({
       id: row.id,
       name: row.name,

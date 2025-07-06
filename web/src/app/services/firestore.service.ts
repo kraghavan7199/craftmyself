@@ -37,8 +37,15 @@ export class FirestoreService {
         return this.httpClient.get(`${environment.apiUrl}/macros/calculation?prompt=${prompt}`)
     }
 
-    getExercises(): Observable<Exercise[]> {
-        return this.httpClient.get<Exercise[]>(`${environment.apiUrl}/exercises`)
+    getExercises(skip: number = 0, limit?: number, searchQuery?: string): Observable<any> {
+        let url = `${environment.apiUrl}/exercises?skip=${skip}`;
+        if (limit) {
+            url += `&limit=${limit}`;
+        }
+        if (searchQuery && searchQuery.trim()) {
+            url += `&searchQuery=${encodeURIComponent(searchQuery)}`;
+        }
+        return this.httpClient.get(url);
     }
 
     addUserWorkout(workout: UserWorkout) {

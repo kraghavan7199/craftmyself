@@ -1052,6 +1052,39 @@ BEGIN
     WHERE u.id = p_user_id;
 END;
 $BODY$;
+CREATE OR REPLACE FUNCTION exercise.getexercises(
+    p_limit INT DEFAULT NULL,
+    p_skip INT DEFAULT 0,
+    p_search_query VARCHAR(255) DEFAULT NULL
+)
+RETURNS TABLE (
+    id VARCHAR(36),
+    name VARCHAR(255),
+    muscleGroupName VARCHAR(255),
+    muscleGroupCode VARCHAR(255)
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        e.id,
+        e.name,
+        e.musclegroupname AS muscleGroupName,
+        e.musclegroupcode AS muscleGroupCode
+    FROM exercise.exercises e
+    WHERE (
+        p_search_query IS NULL 
+        OR p_search_query = '' 
+        OR LOWER(e.name) LIKE '%' || LOWER(TRIM(p_search_query)) || '%'
+        OR LOWER(e.musclegroupname) LIKE '%' || LOWER(TRIM(p_search_query)) || '%'
+    )
+    ORDER BY e.name ASC
+    LIMIT CASE WHEN p_limit IS NOT NULL THEN p_limit ELSE NULL END
+    OFFSET p_skip;
+END;
+$$;
+
 CREATE OR REPLACE FUNCTION analytics.get_comprehensive_workout_analytics(
     p_user_id VARCHAR(36),
     p_start_date DATE DEFAULT NULL,

@@ -21,8 +21,21 @@ export class ExerciseController {
     @httpGet('')
     public async getExercises(@request() req: express.Request, @response() res: express.Response) {
         try {
-            const exercises = await this.postgresRepo.getExercises();
-            res.status(200).json(exercises);
+            const skip = req.query.skip ? +req.query.skip : 0;
+            const limit = req.query.limit ? +req.query.limit : 10;
+            const searchQuery = req.query.searchQuery as string;
+            
+            const exercises = await this.postgresRepo.getExercises(limit, skip, searchQuery);
+            
+            // Get total count for pagination
+            const totalExercises = await this.postgresRepo.getExercises(10000, 0, searchQuery);
+            
+            res.status(200).json({
+                data: exercises,
+                total: totalExercises.length,
+                page: limit ? Math.floor(skip / limit) + 1 : 1,
+                limit: limit
+            });
         }
         catch (error) {
             console.log(error)

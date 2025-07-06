@@ -66,9 +66,9 @@ export class HomeComponent {
 
   setExercises() {
     try {
-      this.firestoreService.getExercises().subscribe((exercises) => {
-        if (exercises && exercises.length) {
-          this.exercises = exercises;
+      this.firestoreService.getExercises(0, 1000).subscribe((response) => {
+        if (response && response.data) {
+          this.exercises = response.data;
           this.getTodaysWorkout();
           this.isLoading.exerciseForm = false;
         }
@@ -85,11 +85,13 @@ export class HomeComponent {
       return;
     }
 
-    searchText = searchText.toLowerCase();
-    this.filteredExercises = this.exercises.filter(exercise =>
-      exercise.name.toLowerCase().includes(searchText)
-    );
-    this.showAutocomplete = this.filteredExercises.length > 0;
+    // Use server-side search instead of client-side filtering
+    this.firestoreService.getExercises(0, 50, searchText).subscribe((response) => {
+      if (response && response.data) {
+        this.filteredExercises = response.data;
+        this.showAutocomplete = this.filteredExercises.length > 0;
+      }
+    });
   }
 
   selectExercise(exercise: Exercise): void {
