@@ -5,6 +5,24 @@ CREATE SCHEMA admin;
 CREATE SCHEMA macros;
 CREATE SCHEMA analytics;
 
+-- Create Metabase user (database creation must be done separately)
+CREATE USER metabase_user WITH PASSWORD 'metabase_password';
+
+-- Grant read permissions to Metabase user for analytics
+GRANT USAGE ON SCHEMA exercise TO metabase_user;
+GRANT USAGE ON SCHEMA workout TO metabase_user;
+GRANT USAGE ON SCHEMA summary TO metabase_user;
+GRANT USAGE ON SCHEMA admin TO metabase_user;
+GRANT USAGE ON SCHEMA macros TO metabase_user;
+GRANT USAGE ON SCHEMA analytics TO metabase_user;
+
+GRANT SELECT ON ALL TABLES IN SCHEMA exercise TO metabase_user;
+GRANT SELECT ON ALL TABLES IN SCHEMA workout TO metabase_user;
+GRANT SELECT ON ALL TABLES IN SCHEMA summary TO metabase_user;
+GRANT SELECT ON ALL TABLES IN SCHEMA admin TO metabase_user;
+GRANT SELECT ON ALL TABLES IN SCHEMA macros TO metabase_user;
+GRANT SELECT ON ALL TABLES IN SCHEMA analytics TO metabase_user;
+
 CREATE TABLE IF NOT EXISTS exercise.exercises (
     id VARCHAR(36) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
