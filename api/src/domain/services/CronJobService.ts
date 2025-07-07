@@ -12,7 +12,7 @@ export class CronJobService {
     ) {}
 
     public startCronJobs(): void {
-        cron.schedule('*/1 * * * *', async () => {
+        cron.schedule('30 5 * * *', async () => {
             console.log('Running daily workout creation job at 5:30 AM');
             await this.createDailyWorkouts();
         });
