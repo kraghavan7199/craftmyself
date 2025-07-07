@@ -4,6 +4,7 @@ import TYPES from '../../config/types';
 import { PostgresRepository } from '../../repository/postgres.repository';
 import { IWorkoutService } from './IWorkoutService';
 
+
 @injectable()
 export class CronJobService {
     constructor(
@@ -15,7 +16,7 @@ export class CronJobService {
         cron.schedule('30 5 * * *', async () => {
             console.log('Running daily workout creation job at 5:30 AM');
             await this.createDailyWorkouts();
-        });
+        }, {timezone: 'Asia/Kolkata', scheduled: true});
 
         console.log('Cron jobs started successfully');
     }
