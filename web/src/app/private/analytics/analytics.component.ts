@@ -24,8 +24,8 @@ import { PageWrapperComponent } from "../../shared/components/page-wrapper.compo
 
 Chart.register(...registerables);
 @Component({
-    selector: 'app-analytics',
-    imports: [
+  selector: 'app-analytics',
+  imports: [
     RouterOutlet,
     FormsModule,
     ReactiveFormsModule,
@@ -40,8 +40,8 @@ Chart.register(...registerables);
     ExercisePRsComponent,
     ComprehensiveAnalyticsComponent,
     PageWrapperComponent
-],
-    templateUrl: './analytics.component.html'
+  ],
+  templateUrl: './analytics.component.html'
 })
 export class AnalyticsComponent {
   activeTab: string = 'weekly';
@@ -57,10 +57,10 @@ export class AnalyticsComponent {
   exercisePRsCurrentPage: number = 1;
   exercisePRsLimit: number = 10;
   exercisePRsSearchQuery: string = '';
-  isLoading = { 
-    workoutHistory: false, 
-    macrosHistory: false, 
-    weeklySummary: false, 
+  isLoading = {
+    workoutHistory: false,
+    macrosHistory: false,
+    weeklySummary: false,
     exercisePRs: false,
     comprehensiveAnalytics: false
   };
@@ -78,16 +78,16 @@ export class AnalyticsComponent {
   isShowDietInsights = false;
   muscleGroups = [{ code: 'chest', name: 'Chest' }, { code: 'back', name: 'Back' }, { code: 'legs', name: 'Legs' },
   { code: 'shoulders', name: 'Shoulders' }, { code: 'biceps', name: 'Biceps' }, { code: 'triceps', name: 'Triceps' },
-  { code: 'core', name: 'Core' }, {code: 'forearms', name: 'Forearms'}];
+  { code: 'core', name: 'Core' }, { code: 'forearms', name: 'Forearms' }];
 
-  macroAttribute = [ {code: 'kcal', name: 'Calories', unitLabel: 'Calories'}, 
-    {code: 'protein_g', name: 'Proteins', unitLabel: 'Grams(g)'}, {code: 'fats_g', name: 'Fats', unitLabel: 'Grams(g)' },
-    {code: 'carbs_g', name: 'Carbs', unitLabel: 'Grams(g)'}
+  macroAttribute = [{ code: 'kcal', name: 'Calories', unitLabel: 'Calories' },
+  { code: 'protein_g', name: 'Proteins', unitLabel: 'Grams(g)' }, { code: 'fats_g', name: 'Fats', unitLabel: 'Grams(g)' },
+  { code: 'carbs_g', name: 'Carbs', unitLabel: 'Grams(g)' }
   ];
-  
+
   selectedMuscleGroup = this.muscleGroups[0];
   selectedMacroAttribute = this.macroAttribute[0];
-isCalSummary: any;
+  isCalSummary: any;
   progressiveOverloadStatus: { [key: string]: { status: string, change: number, percentage: number, propotionalChange: number } } = {};
   Math = Math;
 
@@ -117,10 +117,10 @@ isCalSummary: any;
   }
 
   private initializeCalendarView() {
-      const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-      this.onCalendarMonthChanged({ startDate: startOfMonth, endDate: endOfMonth });
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    this.onCalendarMonthChanged({ startDate: startOfMonth, endDate: endOfMonth });
 
   }
 
@@ -181,14 +181,14 @@ isCalSummary: any;
       return;
     }
 
-    const currentWeek = this.weeklySummary[this.weeklySummary.length -1];
+    const currentWeek = this.weeklySummary[this.weeklySummary.length - 1];
     const previousWeek = this.weeklySummary[this.weeklySummary.length - 2];
 
     this.progressiveOverloadStatus = {};
 
     this.muscleGroups.forEach(muscle => {
       const currentVolume = (currentWeek.muscleGroupVolumes as any)[muscle.code] || 0;
-      const previousVolume =(previousWeek.muscleGroupVolumes as any)[muscle.code] || 0;
+      const previousVolume = (previousWeek.muscleGroupVolumes as any)[muscle.code] || 0;
 
       if (previousVolume === 0) {
         this.progressiveOverloadStatus[muscle.code] = {
@@ -201,7 +201,7 @@ isCalSummary: any;
         const change = currentVolume - previousVolume;
         const percentage = Math.round((change / previousVolume) * 100);
         const propotionalChange = Math.round((currentVolume / previousVolume) * 100);
-        
+
         let status = 'maintained';
         if (change > 0) {
           status = 'increased';
@@ -265,7 +265,7 @@ isCalSummary: any;
     this.getUserMacrosHistory();
   }
 
-  getMuscleCodeValue(s: any, v: any ) {
+  getMuscleCodeValue(s: any, v: any) {
     return (s.muscleGroupVolumes as any)[(v as any)] || 0;
   }
 
@@ -295,7 +295,7 @@ isCalSummary: any;
     }
   }
 
-  onExercisePRsPageChanged(event: {page: number, limit: number, searchQuery: string}): void {
+  onExercisePRsPageChanged(event: { page: number, limit: number, searchQuery: string }): void {
     this.exercisePRsCurrentPage = event.page;
     this.exercisePRsLimit = event.limit;
     this.exercisePRsSearchQuery = event.searchQuery;
@@ -346,10 +346,15 @@ isCalSummary: any;
 
   getComprehensiveAnalytics(): void {
     try {
+      if (!this.analyticsStartDate) {
+        this.analyticsEndDate = new Date();
+        this.analyticsStartDate = new Date(this.analyticsEndDate);
+        this.analyticsStartDate.setDate(this.analyticsEndDate.getDate() - 30);
+      }
       this.isLoading.comprehensiveAnalytics = true;
       this.firestoreService.getComprehensiveAnalytics(
-        this.currentUserId, 
-        this.analyticsStartDate, 
+        this.currentUserId,
+        this.analyticsStartDate,
         this.analyticsEndDate
       ).subscribe((analytics: ComprehensiveAnalytics) => {
         this.comprehensiveAnalytics = analytics;
@@ -373,7 +378,7 @@ isCalSummary: any;
     this.getComprehensiveAnalytics();
   }
 
-  onAnalyticsDateRangeChanged(event: {startDate: Date, endDate: Date}): void {
+  onAnalyticsDateRangeChanged(event: { startDate: Date, endDate: Date }): void {
     this.analyticsStartDate = event.startDate;
     this.analyticsEndDate = event.endDate;
     this.getComprehensiveAnalytics();
