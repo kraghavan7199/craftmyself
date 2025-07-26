@@ -299,7 +299,7 @@
                   <div class="flex flex-col sm:flex-row gap-3">
                     <div class="relative flex-1 group">
                       <input type="number" (keydown)="preventInvalid($event)"
-                        [(ngModel)]="newSetWeight[exercise.exerciseId]" placeholder="Weight"
+                        [(ngModel)]="newSetWeight[exercise.exerciseId]" [placeholder]="getWeightPlaceholder(exercise.exerciseId)"
                         class="input-modern w-full px-5 py-3.5 text-sm pr-14 bg-background/80 text-foreground border-2 border-muted-foreground/30 focus:border-primary focus:ring-2 focus:ring-primary/30 rounded-xl transition-all duration-200 placeholder-muted-foreground/70 shadow-md backdrop-blur-sm"
                         min="0" step="0.5">
                       <span

@@ -40,6 +40,7 @@ export class HomeComponent {
   exerciseToDelete: ExerciseEntry | null = null;
   autocompletePosition = { top: 0, left: 0, width: 0 };
   isExerciseSelected = false;
+  exercisePRData: { [key: string]: number | null } = {};
   constructor(private firestoreService: FirestoreService, private fb: FormBuilder, private store: Store, private toast: ToastService) {
     this.exerciseForm = this.fb.group({
       exercise: ['', Validators.required],
@@ -138,6 +139,13 @@ export class HomeComponent {
         if (data) {
           this.todaysWorkout = data;
           this.accordionStates = new Array(data.exercises?.length || 0).fill(true);
+          
+          // Load PR data for existing exercises
+          if (data.exercises) {
+            data.exercises.forEach(exercise => {
+              this.getExercisePRForPlaceholder(exercise.exerciseId);
+            });
+          }
         } else {
           this.todaysWorkout = {} as UserWorkout;
           this.accordionStates = [];
@@ -211,6 +219,10 @@ export class HomeComponent {
       this.toast.info('Exercise Already In Workout!');
       return;
     }
+    
+    // Fetch PR data for the new exercise
+    this.getExercisePRForPlaceholder(newExercise.exerciseId);
+    
     this.isLoading.workoutLog = true;
     this.todaysWorkout.userId = this.currentUserId;
     if (!this.todaysWorkout.exercises) {
@@ -329,6 +341,23 @@ export class HomeComponent {
     this.hasWeightPR = false;
   }
 
+  // Add this method to fetch PR data for an exercise
+  getExercisePRForPlaceholder(exerciseId: string) {
+    if (!this.exercisePRData[exerciseId]) {
+      this.firestoreService.getUserExerciseHistory(exerciseId, this.currentUserId).subscribe(history => {
+        this.exercisePRData[exerciseId] = history?.maxWeightPR || null;
+      });
+    }
+  }
+
+  // Add a helper method to get the placeholder text
+  getWeightPlaceholder(exerciseId: string): string {
+    const pr = this.exercisePRData[exerciseId];
+    if (pr) {
+      return `Weight (Current PR: ${pr}kg)`;
+    }
+    return 'Weight';
+  }
 
   formatSetTime(timestamp: Date): string {
     if (!timestamp) return '';
