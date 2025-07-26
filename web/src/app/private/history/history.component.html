@@ -19,104 +19,100 @@
       </div>
     </div>
 
-    <main class="responsive-width px-4 sm:px-6 lg:px-8 py-6 space-y-8">
-      <!-- Calendar History Section -->
-      <div class="mb-8 animate-slide-right animate-delayed-1">
-        <section class="bg-gradient-to-br from-slate-800/60 via-slate-800/40 to-slate-900/60 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-slate-700/50">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-6">
-            
-            <!-- Toggle Buttons -->
-            <div class="flex bg-slate-800/80 backdrop-blur-sm rounded-xl p-1.5 shadow-inner border border-slate-700/50">
-              <button (click)="setActiveHistoryTab('workout')"
-                      [class]="'flex items-center gap-2 px-5 py-3 rounded-lg text-sm font-semibold transition-all duration-300 transform ' + 
-                              (activeHistoryTab === 'workout' ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25 scale-105' : 'text-slate-300 hover:text-white hover:bg-slate-700/50 hover:scale-105')">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                Workouts
-              </button>
-              <button (click)="setActiveHistoryTab('macros')"
-                      [class]="'flex items-center gap-2 px-5 py-3 rounded-lg text-sm font-semibold transition-all duration-300 transform ' + 
-                              (activeHistoryTab === 'macros' ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-lg shadow-emerald-500/25 scale-105' : 'text-slate-300 hover:text-white hover:bg-slate-700/50 hover:scale-105')">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Nutrition
-              </button>
-            </div>
-          </div>
+    <main class="responsive-width px-2 sm:px-4 lg:px-8 py-4 sm:py-6 space-y-6">
+      <!-- Toggle Buttons -->
+      <div class="flex justify-center mb-6">
+        <div class="flex bg-slate-800/80 backdrop-blur-sm rounded-xl p-1.5 shadow-inner border border-slate-700/50">
+          <button (click)="setActiveHistoryTab('workout')"
+                  [class]="'flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 transform ' + 
+                          (activeHistoryTab === 'workout' ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25 scale-105' : 'text-slate-300 hover:text-white hover:bg-slate-700/50 hover:scale-105')">
+            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span class="hidden sm:inline">Workouts</span>
+            <span class="sm:hidden">Workout</span>
+          </button>
+          <button (click)="setActiveHistoryTab('macros')"
+                  [class]="'flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 transform ' + 
+                          (activeHistoryTab === 'macros' ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-lg shadow-emerald-500/25 scale-105' : 'text-slate-300 hover:text-white hover:bg-slate-700/50 hover:scale-105')">
+            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="hidden sm:inline">Nutrition</span>
+            <span class="sm:hidden">Macros</span>
+          </button>
+        </div>
+      </div>
 
-          <!-- Month Navigation -->
-          <div class="flex items-center justify-between mb-8">
-            <button (click)="previousMonth()" 
-                    class="group flex items-center justify-center w-12 h-12 rounded-xl bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 hover:bg-slate-700/60 hover:border-slate-600/50 text-slate-300 hover:text-white transition-all duration-300 hover:scale-110 hover:shadow-lg">
-              <svg class="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            
-            <div class="text-center">
-              <h3 class="text-2xl font-bold text-white mb-1">
-                {{ currentMonth.format('MMMM YYYY') }}
-              </h3>
-              <div class="w-16 h-1 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full mx-auto"></div>
-            </div>
-            
-            <button (click)="nextMonth()" 
-                    class="group flex items-center justify-center w-12 h-12 rounded-xl bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 hover:bg-slate-700/60 hover:border-slate-600/50 text-slate-300 hover:text-white transition-all duration-300 hover:scale-110 hover:shadow-lg">
-              <svg class="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
+      <!-- Month Navigation -->
+      <div class="flex items-center justify-between mb-6 px-2">
+        <button (click)="previousMonth()" 
+                class="group flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 hover:bg-slate-700/60 hover:border-slate-600/50 text-slate-300 hover:text-white transition-all duration-300 hover:scale-110 hover:shadow-lg">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        
+        <div class="text-center">
+          <h3 class="text-lg sm:text-2xl font-bold text-white mb-1">
+            {{ currentMonth.format('MMMM YYYY') }}
+          </h3>
+          <div class="w-12 sm:w-16 h-1 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full mx-auto"></div>
+        </div>
+        
+        <button (click)="nextMonth()" 
+                class="group flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 hover:bg-slate-700/60 hover:border-slate-600/50 text-slate-300 hover:text-white transition-all duration-300 hover:scale-110 hover:shadow-lg">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
 
-          <!-- Calendar Grid -->
-          <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/30 shadow-inner">
-            <!-- Days of week header -->
-            <div class="grid grid-cols-7 gap-2 lg:gap-4 mb-4">
-              <div *ngFor="let day of daysOfWeek" class="text-center text-slate-400 text-sm font-semibold py-3 tracking-wider uppercase">
-                {{ day }}
+      <!-- Calendar Grid -->
+      <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl p-3 sm:p-6 border border-slate-700/30 shadow-inner">
+        <!-- Days of week header -->
+        <div class="grid grid-cols-7 gap-1 sm:gap-2 lg:gap-4 mb-4">
+          <div *ngFor="let day of daysOfWeek" class="text-center text-slate-400 text-xs sm:text-sm font-semibold py-2 sm:py-3 tracking-wider uppercase">
+            {{ day }}
+          </div>
+        </div>
+        
+        <!-- Calendar days -->
+        <div class="grid grid-cols-7 gap-1 sm:gap-2 lg:gap-4">
+          <div *ngFor="let day of calendarDays; trackBy: trackByDate" 
+               [class]="getDateCellClasses(day)"
+               (click)="onDateClick(day)">
+            <div class="relative w-full h-12 sm:h-14 lg:h-16 flex items-center justify-center rounded-xl transition-all duration-300 hover:scale-105 cursor-pointer group">
+              <span [class]="getDateTextClasses(day)" class="relative z-10 font-semibold text-sm sm:text-base">
+                {{ day.date.getDate() }}
+              </span>
+              
+              <!-- Enhanced Indicators -->
+              <div class="absolute bottom-1 sm:bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
+                <div *ngIf="day.hasWorkout && (activeHistoryTab === 'workout' || activeHistoryTab === 'both')" 
+                     class="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full shadow-lg shadow-blue-500/50 animate-pulse"></div>
+                <div *ngIf="day.hasMacros && (activeHistoryTab === 'macros' || activeHistoryTab === 'both')" 
+                     class="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full shadow-lg shadow-emerald-500/50 animate-pulse"></div>
               </div>
-            </div>
-            
-            <!-- Calendar days -->
-            <div class="grid grid-cols-7 gap-2 lg:gap-4">
-              <div *ngFor="let day of calendarDays; trackBy: trackByDate" 
-                   [class]="getDateCellClasses(day)"
-                   (click)="onDateClick(day)">
-                <div class="relative w-full h-14 lg:h-16 flex items-center justify-center rounded-xl transition-all duration-300 hover:scale-105 cursor-pointer group">
-                  <span [class]="getDateTextClasses(day)" class="relative z-10 font-semibold">
-                    {{ day.date.getDate() }}
-                  </span>
-                  
-                  <!-- Enhanced Indicators -->
-                  <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
-                    <div *ngIf="day.hasWorkout && (activeHistoryTab === 'workout' || activeHistoryTab === 'both')" 
-                         class="w-2 h-2 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full shadow-lg shadow-blue-500/50 animate-pulse"></div>
-                    <div *ngIf="day.hasMacros && (activeHistoryTab === 'macros' || activeHistoryTab === 'both')" 
-                         class="w-2 h-2 bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full shadow-lg shadow-emerald-500/50 animate-pulse"></div>
-                  </div>
-                  
-                  <!-- Hover effect -->
-                  <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </div>
-              </div>
+              
+              <!-- Hover effect -->
+              <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
           </div>
+        </div>
+      </div>
 
-          <!-- Loading State -->
-          <div *ngIf="isLoading.workoutHistory || isLoading.macrosHistory" class="flex flex-col items-center justify-center py-12">
-            <div class="relative w-20 h-20 mb-6">
-              <div class="absolute inset-0 border-4 border-slate-700/30 rounded-full"></div>
-              <div class="absolute inset-0 border-4 border-transparent border-t-blue-500 border-r-emerald-500 rounded-full animate-spin"></div>
-              <div class="absolute inset-2 border-2 border-transparent border-t-emerald-400 border-l-blue-400 rounded-full animate-spin animate-reverse"></div>
-            </div>
-            <div class="text-center">
-              <p class="text-lg font-semibold text-white mb-2">Loading calendar data...</p>
-              <p class="text-sm text-slate-400">Fetching your fitness journey</p>
-            </div>
-          </div>
-        </section>
+      <!-- Loading State -->
+      <div *ngIf="isLoading.workoutHistory || isLoading.macrosHistory" class="flex flex-col items-center justify-center py-8 sm:py-12">
+        <div class="relative w-16 h-16 sm:w-20 sm:h-20 mb-4 sm:mb-6">
+          <div class="absolute inset-0 border-4 border-slate-700/30 rounded-full"></div>
+          <div class="absolute inset-0 border-4 border-transparent border-t-blue-500 border-r-emerald-500 rounded-full animate-spin"></div>
+          <div class="absolute inset-2 border-2 border-transparent border-t-emerald-400 border-l-blue-400 rounded-full animate-spin animate-reverse"></div>
+        </div>
+        <div class="text-center">
+          <p class="text-base sm:text-lg font-semibold text-white mb-2">Loading calendar data...</p>
+          <p class="text-xs sm:text-sm text-slate-400">Fetching your fitness journey</p>
+        </div>
       </div>
     </main>
 

@@ -354,7 +354,7 @@ export class HomeComponent {
   getWeightPlaceholder(exerciseId: string): string {
     const pr = this.exercisePRData[exerciseId];
     if (pr) {
-      return `Weight (Current PR: ${pr}kg)`;
+      return `Weight (PR: ${pr}${ pr > 1 ? 'kgs' : 'kg'})`;
     }
     return 'Weight';
   }
