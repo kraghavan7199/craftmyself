@@ -2,295 +2,279 @@
     <div class="container mx-auto p-4 md:p-8 max-w-6xl">
         <app-page-header></app-page-header>
         
-        <!-- Tab Navigation -->
-        <div class=" top-0 z-10  border-b border-border mb-8">
-            <!-- Desktop Tabs -->
-            <div class="hidden md:flex flex-wrap gap-2 py-4">
+        <!-- Page Title -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-primary mb-4">📚 Complete Fitness Blueprint</h1>
+            <p class="text-lg text-muted-foreground">Your comprehensive guide to building muscle, optimizing nutrition, and achieving long-term fitness success.</p>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="bg-card border border-border rounded-lg p-6 mb-8" [class.hidden]="!showTableOfContents">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-foreground">📋 Table of Contents</h2>
                 <button 
-                    *ngFor="let tab of tabs" 
-                    (click)="setActiveTab(tab.id)"
-                    class="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium"
-                    [class]="isTabActive(tab.id) ? 'bg-primary text-primary-foreground shadow-lg' : 'bg-card text-muted-foreground hover:bg-muted hover:text-foreground'">
-                    <span>{{ tab.icon }}</span>
-                    <span>{{ tab.label }}</span>
+                    (click)="toggleTableOfContents()"
+                    class="text-muted-foreground hover:text-foreground transition-colors">
+                    <span class="sr-only">Hide table of contents</span>
+                    ✕
                 </button>
             </div>
             
-            <!-- Mobile Dropdown -->
-            <div class="md:hidden py-4">
-                <div class="relative">
-                    <button 
-                        (click)="toggleMobileDropdown()"
-                        class="w-full flex items-center justify-between px-4 py-2 bg-card text-muted-foreground rounded-lg hover:bg-muted transition-colors">
-                        <div class="flex items-center gap-2">
-                            <span>{{ getActiveTab().icon }}</span>
-                            <span>{{ getActiveTab().label }}</span>
-                        </div>
-                        <span class="transition-transform duration-200" [class]="isMobileDropdownOpen ? 'rotate-180' : ''">▼</span>
-                    </button>
-                    
-                    <div *ngIf="isMobileDropdownOpen" class="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg z-20">
-                        <button 
-                            *ngFor="let tab of tabs" 
-                            (click)="setActiveTab(tab.id); toggleMobileDropdown()"
-                            class="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-muted transition-colors first:rounded-t-lg last:rounded-b-lg"
-                            [class]="isTabActive(tab.id) ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'">
-                            <span>{{ tab.icon }}</span>
-                            <span>{{ tab.label }}</span>
-                        </button>
-                    </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div *ngFor="let category of sections" class="space-y-2">
+                    <h3 class="font-medium text-foreground text-sm">{{ category.title }}</h3>
+                    <ul class="space-y-1">
+                        <li *ngFor="let item of category.items">
+                            <a 
+                                (click)="scrollToSection(item.id)"
+                                class="text-sm text-primary hover:text-primary/80 cursor-pointer block py-1 transition-colors">
+                                {{ item.title }}
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
-            
-    
+        </div>
+
+        <!-- Show TOC Button (when hidden) -->
+        <div *ngIf="!showTableOfContents" class="mb-8">
+            <button 
+                (click)="toggleTableOfContents()"
+                class="bg-card hover:bg-muted text-foreground px-4 py-2 rounded-lg border border-border transition-colors">
+                📋 Show Table of Contents
+            </button>
         </div>
 
         <!-- Content Sections -->
-        <div class="space-y-8">
-            <!-- Foundations Tab -->
-            <div *ngIf="activeTab === 'foundations'" class="fade-in">
-                <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-primary mb-2">🏗️ Foundations</h2>
+        <div class="space-y-12">
+            <!-- Foundations -->
+            <section class="space-y-8">
+                <div class="border-b border-border pb-4">
+                    <h2 id="foundations" class="text-3xl font-bold text-primary mb-2">🏗️ Foundations</h2>
                     <p class="text-muted-foreground">Build your mindset and understand the core principles</p>
                 </div>
                 
-                <!-- Collapsible Sections -->
-                <div class="space-y-4">
-                    <div *ngFor="let sectionId of sectionsByTab.foundations" [id]="sectionId" class="border border-border rounded-lg overflow-hidden">
-                        <button 
-                            (click)="toggleSection(sectionId)"
-                            class="w-full px-4 py-3 bg-card hover:bg-muted text-left flex items-center justify-between transition-colors">
-                            <div class="flex items-center">
-                                <span class="font-medium text-foreground">{{ sectionTitles[sectionId] }}</span>
-                            </div>
-                            <span class="text-muted-foreground transition-transform duration-200"
-                                  [class]="isSectionExpanded(sectionId) ? 'rotate-180' : ''">▼</span>
-                        </button>
-                        
-                        <div *ngIf="isSectionExpanded(sectionId)" class="p-4 bg-background border-t border-border">
-                            <div (click)="markSectionCompleted(sectionId)">
-                                <app-mindset *ngIf="sectionId === 'mindset'"></app-mindset>
-                                <app-reality-check *ngIf="sectionId === 'reality-check'"></app-reality-check>
-                                <app-hypertrophy-trifecta *ngIf="sectionId === 'hypertrophy-trifecta'"></app-hypertrophy-trifecta>
-                                <app-growth-cycle-visualizer *ngIf="sectionId === 'growth-cycle-visualizer'"></app-growth-cycle-visualizer>
-                                <app-mental-fortitude *ngIf="sectionId === 'mental-fortitude'"></app-mental-fortitude>
-                            </div>
-                        </div>
+                <div class="space-y-8">
+                    <div id="mindset" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Mindset & Mental Framework</h3>
+                        <app-mindset></app-mindset>
+                    </div>
+
+                    <div id="reality-check" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Reality Check</h3>
+                        <app-reality-check></app-reality-check>
+                    </div>
+
+                    <div id="hypertrophy-trifecta" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Hypertrophy Trifecta</h3>
+                        <app-hypertrophy-trifecta></app-hypertrophy-trifecta>
+                    </div>
+
+                    <div id="growth-cycle-visualizer" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Growth Cycle Visualizer</h3>
+                        <app-growth-cycle-visualizer></app-growth-cycle-visualizer>
+                    </div>
+
+                    <div id="mental-fortitude" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Mental Fortitude</h3>
+                        <app-mental-fortitude></app-mental-fortitude>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Nutrition Tab -->
-            <div *ngIf="activeTab === 'nutrition'" class="fade-in">
-                <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-primary mb-2">🥗 Nutrition</h2>
+            <!-- Nutrition -->
+            <section class="space-y-8">
+                <div class="border-b border-border pb-4">
+                    <h2 id="nutrition" class="text-3xl font-bold text-primary mb-2">🥗 Nutrition</h2>
                     <p class="text-muted-foreground">Master your nutrition for optimal results</p>
                 </div>
                 
-                <div class="space-y-4">
-                    <div *ngFor="let sectionId of sectionsByTab.nutrition" [id]="sectionId" class="border border-slate-700 rounded-lg overflow-hidden">
-                        <button 
-                            (click)="toggleSection(sectionId)"
-                            class="w-full px-4 py-3 bg-card hover:bg-muted text-left flex items-center justify-between transition-colors">
-                            <div class="flex items-center">
-                                <span class="font-medium text-foreground">{{ sectionTitles[sectionId] }}</span>
-                            </div>
-                            <span class="text-muted-foreground transition-transform duration-200"
-                                  [class]="isSectionExpanded(sectionId) ? 'rotate-180' : ''">▼</span>
-                        </button>
-                        
-                        <div *ngIf="isSectionExpanded(sectionId)" class="p-4 bg-background border-t border-border">
-                            <div (click)="markSectionCompleted(sectionId)">
-                                <app-nutrition-blueprint *ngIf="sectionId === 'nutrition-blueprint'"></app-nutrition-blueprint>
-                                <app-advanced-nutrition-strategies *ngIf="sectionId === 'advanced-nutrition-strategies'"></app-advanced-nutrition-strategies>
-                                <app-supplement-guide *ngIf="sectionId === 'supplement-guide'"></app-supplement-guide>
-                            </div>
-                        </div>
+                <div class="space-y-8">
+                    <div id="nutrition-blueprint" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Nutrition Blueprint</h3>
+                        <app-nutrition-blueprint></app-nutrition-blueprint>
+                    </div>
+
+                    <div id="advanced-nutrition-strategies" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Advanced Nutrition Strategies</h3>
+                        <app-advanced-nutrition-strategies></app-advanced-nutrition-strategies>
+                    </div>
+
+                    <div id="supplement-guide" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Supplement Guide</h3>
+                        <app-supplement-guide></app-supplement-guide>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Training Tab -->
-            <div *ngIf="activeTab === 'training'" class="fade-in">
-                <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-primary mb-2">💪 Training</h2>
+            <!-- Training -->
+            <section class="space-y-8">
+                <div class="border-b border-border pb-4">
+                    <h2 id="training" class="text-3xl font-bold text-primary mb-2">💪 Training</h2>
                     <p class="text-muted-foreground">Comprehensive training principles and programs</p>
                 </div>
                 
-                <div class="space-y-4">
-                    <div *ngFor="let sectionId of sectionsByTab.training" [id]="sectionId" class="border border-slate-700 rounded-lg overflow-hidden">
-                        <button 
-                            (click)="toggleSection(sectionId)"
-                            class="w-full px-4 py-3 bg-card hover:bg-muted text-left flex items-center justify-between transition-colors">
-                            <div class="flex items-center">
-                                <span class="font-medium text-foreground">{{ sectionTitles[sectionId] }}</span>
-                            </div>
-                            <span class="text-muted-foreground transition-transform duration-200"
-                                  [class]="isSectionExpanded(sectionId) ? 'rotate-180' : ''">▼</span>
-                        </button>
-                        
-                        <div *ngIf="isSectionExpanded(sectionId)" class="p-4 bg-background border-t border-border">
-                            <div (click)="markSectionCompleted(sectionId)">
-                                <app-training-pyramid *ngIf="sectionId === 'training-pyramid'"></app-training-pyramid>
-                                <app-training-principles *ngIf="sectionId === 'training-principles'"></app-training-principles>
-                                <app-exercise-technique *ngIf="sectionId === 'exercise-technique'"></app-exercise-technique>
-                                <app-assistance-lifts *ngIf="sectionId === 'assistance-lifts'"></app-assistance-lifts>
-                                <app-program-templates *ngIf="sectionId === 'program-templates'"></app-program-templates>
-                                <app-intensity-techniques *ngIf="sectionId === 'intensity-techniques'"></app-intensity-techniques>
-                                <app-periodization-models *ngIf="sectionId === 'periodization-models'"></app-periodization-models>
-                            </div>
-                        </div>
+                <div class="space-y-8">
+                    <div id="training-pyramid" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Training Pyramid</h3>
+                        <app-training-pyramid></app-training-pyramid>
+                    </div>
+
+                    <div id="training-principles" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Training Principles</h3>
+                        <app-training-principles></app-training-principles>
+                    </div>
+
+                    <div id="exercise-technique" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Exercise Technique</h3>
+                        <app-exercise-technique></app-exercise-technique>
+                    </div>
+
+                    <div id="assistance-lifts" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Assistance Lifts</h3>
+                        <app-assistance-lifts></app-assistance-lifts>
+                    </div>
+
+                    <div id="program-templates" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Program Templates</h3>
+                        <app-program-templates></app-program-templates>
+                    </div>
+
+                    <div id="intensity-techniques" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Intensity Techniques</h3>
+                        <app-intensity-techniques></app-intensity-techniques>
+                    </div>
+
+                    <div id="periodization-models" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Periodization Models</h3>
+                        <app-periodization-models></app-periodization-models>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Recovery Tab -->
-            <div *ngIf="activeTab === 'recovery'" class="fade-in">
-                <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-primary mb-2">🧘 Recovery & Longevity</h2>
+            <!-- Recovery -->
+            <section class="space-y-8">
+                <div class="border-b border-border pb-4">
+                    <h2 id="recovery" class="text-3xl font-bold text-primary mb-2">🧘 Recovery & Longevity</h2>
                     <p class="text-muted-foreground">Optimize recovery and long-term health</p>
                 </div>
                 
-                <div class="space-y-4">
-                    <div *ngFor="let sectionId of sectionsByTab.recovery" [id]="sectionId" class="border border-slate-700 rounded-lg overflow-hidden">
-                        <button 
-                            (click)="toggleSection(sectionId)"
-                            class="w-full px-4 py-3 bg-card hover:bg-muted text-left flex items-center justify-between transition-colors">
-                            <div class="flex items-center">
-                                <span class="font-medium text-foreground">{{ sectionTitles[sectionId] }}</span>
-                            </div>
-                            <span class="text-muted-foreground transition-transform duration-200"
-                                  [class]="isSectionExpanded(sectionId) ? 'rotate-180' : ''">▼</span>
-                        </button>
-                        
-                        <div *ngIf="isSectionExpanded(sectionId)" class="p-4 bg-background border-t border-border">
-                            <div (click)="markSectionCompleted(sectionId)">
-                                <app-safety-and-warmups *ngIf="sectionId === 'safety-and-warmups'"></app-safety-and-warmups>
-                                <app-mobility-and-flexibility *ngIf="sectionId === 'mobility-and-flexibility'"></app-mobility-and-flexibility>
-                                <app-cardio-integration *ngIf="sectionId === 'cardio-integration'"></app-cardio-integration>
-                                <app-rehab-protocols *ngIf="sectionId === 'rehab-protocols'"></app-rehab-protocols>
-                                <app-active-recovery *ngIf="sectionId === 'active-recovery'"></app-active-recovery>
-                                <app-skincare-blueprint *ngIf="sectionId === 'skincare-blueprint'"></app-skincare-blueprint>
-                            </div>
-                        </div>
+                <div class="space-y-8">
+                    <div id="safety-and-warmups" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Safety & Warmups</h3>
+                        <app-safety-and-warmups></app-safety-and-warmups>
+                    </div>
+
+                    <div id="mobility-and-flexibility" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Mobility & Flexibility</h3>
+                        <app-mobility-and-flexibility></app-mobility-and-flexibility>
+                    </div>
+
+                    <div id="cardio-integration" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Cardio Integration</h3>
+                        <app-cardio-integration></app-cardio-integration>
+                    </div>
+
+                    <div id="rehab-protocols" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Rehab Protocols</h3>
+                        <app-rehab-protocols></app-rehab-protocols>
+                    </div>
+
+                    <div id="active-recovery" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Active Recovery</h3>
+                        <app-active-recovery></app-active-recovery>
+                    </div>
+
+                    <div id="skincare-blueprint" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Skincare Blueprint</h3>
+                        <app-skincare-blueprint></app-skincare-blueprint>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Tracking Tab -->
-            <div *ngIf="activeTab === 'tracking'" class="fade-in">
-                <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-primary mb-2">📊 Tracking & Adherence</h2>
+            <!-- Tracking -->
+            <section class="space-y-8">
+                <div class="border-b border-border pb-4">
+                    <h2 id="tracking" class="text-3xl font-bold text-primary mb-2">📊 Tracking & Adherence</h2>
                     <p class="text-muted-foreground">Monitor progress and maintain consistency</p>
                 </div>
                 
-                <div class="space-y-4">
-                    <div *ngFor="let sectionId of sectionsByTab.tracking" [id]="sectionId" class="border border-slate-700 rounded-lg overflow-hidden">
-                        <button 
-                            (click)="toggleSection(sectionId)"
-                            class="w-full px-4 py-3 bg-card hover:bg-muted text-left flex items-center justify-between transition-colors">
-                            <div class="flex items-center">
-                                <span class="font-medium text-foreground">{{ sectionTitles[sectionId] }}</span>
-                            </div>
-                            <span class="text-muted-foreground transition-transform duration-200"
-                                  [class]="isSectionExpanded(sectionId) ? 'rotate-180' : ''">▼</span>
-                        </button>
-                        
-                        <div *ngIf="isSectionExpanded(sectionId)" class="p-4 bg-background border-t border-border">
-                            <div (click)="markSectionCompleted(sectionId)">
-                                <app-progress-and-plateaus *ngIf="sectionId === 'progress-and-plateaus'"></app-progress-and-plateaus>
-                                <app-troubleshooting-guide *ngIf="sectionId === 'troubleshooting-guide'"></app-troubleshooting-guide>
-                                <app-performance-metrics *ngIf="sectionId === 'performance-metrics'"></app-performance-metrics>
-                                <app-behavior-and-adherence *ngIf="sectionId === 'behavior-and-adherence'"></app-behavior-and-adherence>
-                            </div>
-                        </div>
+                <div class="space-y-8">
+                    <div id="progress-and-plateaus" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Progress & Plateaus</h3>
+                        <app-progress-and-plateaus></app-progress-and-plateaus>
+                    </div>
+
+                    <div id="troubleshooting-guide" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Troubleshooting Guide</h3>
+                        <app-troubleshooting-guide></app-troubleshooting-guide>
+                    </div>
+
+                    <div id="performance-metrics" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Performance Metrics</h3>
+                        <app-performance-metrics></app-performance-metrics>
+                    </div>
+
+                    <div id="behavior-and-adherence" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Behavior & Adherence</h3>
+                        <app-behavior-and-adherence></app-behavior-and-adherence>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Specialized Tab -->
-            <div *ngIf="activeTab === 'specialized'" class="fade-in">
-                <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-primary mb-2">🎯 Specialized Guides</h2>
+            <!-- Specialized -->
+            <section class="space-y-8">
+                <div class="border-b border-border pb-4">
+                    <h2 id="specialized" class="text-3xl font-bold text-primary mb-2">🎯 Specialized Guides</h2>
                     <p class="text-muted-foreground">Tailored approaches for specific needs</p>
                 </div>
                 
-                <div class="space-y-4">
-                    <div *ngFor="let sectionId of sectionsByTab.specialized" [id]="sectionId" class="border border-slate-700 rounded-lg overflow-hidden">
-                        <button 
-                            (click)="toggleSection(sectionId)"
-                            class="w-full px-4 py-3 bg-card hover:bg-muted text-left flex items-center justify-between transition-colors">
-                            <div class="flex items-center">
-                                <span class="font-medium text-foreground">{{ sectionTitles[sectionId] }}</span>
-                            </div>
-                            <span class="text-muted-foreground transition-transform duration-200"
-                                  [class]="isSectionExpanded(sectionId) ? 'rotate-180' : ''">▼</span>
-                        </button>
-                        
-                        <div *ngIf="isSectionExpanded(sectionId)" class="p-4 bg-background border-t border-border">
-                            <div (click)="markSectionCompleted(sectionId)">
-                                <app-female-factor *ngIf="sectionId === 'female-factor'"></app-female-factor>
-                                <app-age-specific-training *ngIf="sectionId === 'age-specific-training'"></app-age-specific-training>
-                                <app-lifestyle-adaptations *ngIf="sectionId === 'lifestyle-adaptations'"></app-lifestyle-adaptations>
-                                <app-home-gym-blueprint *ngIf="sectionId === 'home-gym-blueprint'"></app-home-gym-blueprint>
-                                <app-tech-integration *ngIf="sectionId === 'tech-integration'"></app-tech-integration>
-                            </div>
-                        </div>
+                <div class="space-y-8">
+                    <div id="female-factor" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Female Factor</h3>
+                        <app-female-factor></app-female-factor>
+                    </div>
+
+                    <div id="age-specific-training" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Age-Specific Training</h3>
+                        <app-age-specific-training></app-age-specific-training>
+                    </div>
+
+                    <div id="lifestyle-adaptations" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Lifestyle Adaptations</h3>
+                        <app-lifestyle-adaptations></app-lifestyle-adaptations>
+                    </div>
+
+                    <div id="home-gym-blueprint" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Home Gym Blueprint</h3>
+                        <app-home-gym-blueprint></app-home-gym-blueprint>
+                    </div>
+
+                    <div id="tech-integration" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Tech Integration</h3>
+                        <app-tech-integration></app-tech-integration>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Quick Start Tab -->
-            <div *ngIf="activeTab === 'guides'" class="fade-in">
-                <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-primary mb-2">🚀 Quick Start Guide</h2>
+            <!-- Quick Start Guide -->
+            <section class="space-y-8">
+                <div class="border-b border-border pb-4">
+                    <h2 id="guides" class="text-3xl font-bold text-primary mb-2">🚀 Quick Start Guide</h2>
                     <p class="text-muted-foreground">Get started with actionable steps</p>
                 </div>
                 
-                <div class="space-y-4">
-                    <div *ngFor="let sectionId of sectionsByTab.guides" [id]="sectionId" class="border border-slate-700 rounded-lg overflow-hidden">
-                        <button 
-                            (click)="toggleSection(sectionId)"
-                            class="w-full px-4 py-3 bg-card hover:bg-muted text-left flex items-center justify-between transition-colors">
-                            <div class="flex items-center">
-                                <span class="font-medium text-foreground">{{ sectionTitles[sectionId] }}</span>
-                            </div>
-                            <span class="text-muted-foreground transition-transform duration-200"
-                                  [class]="isSectionExpanded(sectionId) ? 'rotate-180' : ''">▼</span>
-                        </button>
-                        
-                        <div *ngIf="isSectionExpanded(sectionId)" class="p-4 bg-background border-t border-border">
-                            <div (click)="markSectionCompleted(sectionId)">
-                                <app-quick-start-guide *ngIf="sectionId === 'quick-start-guide'"></app-quick-start-guide>
-                            </div>
-                        </div>
+                <div class="space-y-8">
+                    <div id="quick-start-guide" class="bg-card border border-border rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-4">Quick Start Guide</h3>
+                        <app-quick-start-guide></app-quick-start-guide>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
 
-        <!-- Floating Navigation -->
-        <div class="fixed bottom-8 right-8 z-20 flex flex-col gap-2">
-            <!-- Quick Jump Menu -->
-            <div class="relative group">
-                <button class="bg-card hover:bg-muted text-foreground p-3 rounded-full shadow-lg transition-all duration-200 group-hover:bg-primary">
-                    📋
-                </button>
-                <div class="absolute bottom-full right-0 mb-2 bg-card border border-border rounded-lg p-2 min-w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                    <div class="text-xs text-muted-foreground mb-2 font-medium">Quick Jump</div>
-                    <div class="space-y-1">
-                        <button 
-                            *ngFor="let section of getActiveSections()"
-                            (click)="toggleSection(section); scrollToSection(section)"
-                            class="w-full text-left px-2 py-1 text-xs rounded hover:bg-muted text-foreground flex items-center justify-between">
-                            <span>{{ sectionTitles[section] }}</span>
-                            <span *ngIf="isSectionCompleted(section)" class="text-primary">✓</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Back to Top Button -->
+        <!-- Floating Back to Top Button -->
+        <div class="fixed bottom-8 right-8 z-20">
             <button 
                 (click)="scrollToTop()"
                 class="bg-primary hover:bg-primary/90 text-primary-foreground p-3 rounded-full shadow-lg transition-all duration-200">
@@ -301,14 +285,3 @@
         <app-page-footer></app-page-footer>
     </div>
 </div>
-
-<style>
-.fade-in {
-    animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-</style>

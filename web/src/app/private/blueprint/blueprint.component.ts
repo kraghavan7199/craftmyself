@@ -42,107 +42,91 @@ import { PageFooterComponent } from "./core/page-footer/page-footer.component";
     templateUrl: './blueprint.component.html'
 })
 export class BlueprintComponent {
-  activeTab = 'foundations';
-  completedSections = new Set<string>();
-  expandedSections = new Set<string>();
-  isMobileDropdownOpen = false;
+  showTableOfContents = true;
   
-  tabs = [
-    { id: 'foundations', label: 'Foundations', icon: '🏗️' },
-    { id: 'nutrition', label: 'Nutrition', icon: '🥗' },
-    { id: 'training', label: 'Training', icon: '💪' },
-    { id: 'recovery', label: 'Recovery', icon: '🧘' },
-    { id: 'tracking', label: 'Tracking', icon: '📊' },
-    { id: 'specialized', label: 'Specialized', icon: '🎯' },
-    { id: 'guides', label: 'Quick Start', icon: '🚀' }
-  ];
-
-  sectionsByTab = {
-    foundations: ['mindset', 'reality-check', 'hypertrophy-trifecta', 'growth-cycle-visualizer', 'mental-fortitude'],
-    nutrition: ['nutrition-blueprint', 'advanced-nutrition-strategies', 'supplement-guide'],
-    training: ['training-pyramid', 'training-principles', 'exercise-technique', 'assistance-lifts', 'program-templates', 'intensity-techniques', 'periodization-models'],
-    recovery: ['safety-and-warmups', 'mobility-and-flexibility', 'cardio-integration', 'rehab-protocols', 'active-recovery', 'skincare-blueprint'],
-    tracking: ['progress-and-plateaus', 'troubleshooting-guide', 'performance-metrics', 'behavior-and-adherence'],
-    specialized: ['female-factor', 'age-specific-training', 'lifestyle-adaptations', 'home-gym-blueprint', 'tech-integration'],
-    guides: ['quick-start-guide']
-  };
-
-  sectionTitles: { [key: string]: string } = {
-    'mindset': 'Mindset & Mental Framework',
-    'reality-check': 'Reality Check',
-    'hypertrophy-trifecta': 'Hypertrophy Trifecta',
-    'growth-cycle-visualizer': 'Growth Cycle Visualizer',
-    'mental-fortitude': 'Mental Fortitude',
-    'nutrition-blueprint': 'Nutrition Blueprint',
-    'advanced-nutrition-strategies': 'Advanced Nutrition Strategies',
-    'supplement-guide': 'Supplement Guide',
-    'training-pyramid': 'Training Pyramid',
-    'training-principles': 'Training Principles',
-    'exercise-technique': 'Exercise Technique',
-    'assistance-lifts': 'Assistance Lifts',
-    'program-templates': 'Program Templates',
-    'intensity-techniques': 'Intensity Techniques',
-    'periodization-models': 'Periodization Models',
-    'safety-and-warmups': 'Safety & Warmups',
-    'mobility-and-flexibility': 'Mobility & Flexibility',
-    'cardio-integration': 'Cardio Integration',
-    'rehab-protocols': 'Rehab Protocols',
-    'active-recovery': 'Active Recovery',
-    'skincare-blueprint': 'Skincare Blueprint',
-    'progress-and-plateaus': 'Progress & Plateaus',
-    'troubleshooting-guide': 'Troubleshooting Guide',
-    'performance-metrics': 'Performance Metrics',
-    'behavior-and-adherence': 'Behavior & Adherence',
-    'female-factor': 'Female Factor',
-    'age-specific-training': 'Age-Specific Training',
-    'lifestyle-adaptations': 'Lifestyle Adaptations',
-    'home-gym-blueprint': 'Home Gym Blueprint',
-    'tech-integration': 'Tech Integration',
-    'quick-start-guide': 'Quick Start Guide'
-  };
-
-  setActiveTab(tabId: string) {
-    this.activeTab = tabId;
-  }
-
-  isTabActive(tabId: string): boolean {
-    return this.activeTab === tabId;
-  }
-
-  isSectionVisible(sectionId: string): boolean {
-    return this.sectionsByTab[this.activeTab as keyof typeof this.sectionsByTab]?.includes(sectionId) || false;
-  }
-
-  markSectionCompleted(sectionId: string) {
-    this.completedSections.add(sectionId);
-  }
-
-  isSectionCompleted(sectionId: string): boolean {
-    return this.completedSections.has(sectionId);
-  }
-
-
-  toggleSection(sectionId: string) {
-    if (this.expandedSections.has(sectionId)) {
-      this.expandedSections.delete(sectionId);
-    } else {
-      this.expandedSections.add(sectionId);
+  // All sections organized by category for the table of contents
+  sections = [
+    {
+      id: 'foundations',
+      title: '🏗️ Foundations',
+      description: 'Build your mindset and understand the core principles',
+      items: [
+        { id: 'mindset', title: 'Mindset & Mental Framework' },
+        { id: 'reality-check', title: 'Reality Check' },
+        { id: 'hypertrophy-trifecta', title: 'Hypertrophy Trifecta' },
+        { id: 'growth-cycle-visualizer', title: 'Growth Cycle Visualizer' },
+        { id: 'mental-fortitude', title: 'Mental Fortitude' }
+      ]
+    },
+    {
+      id: 'nutrition',
+      title: '🥗 Nutrition',
+      description: 'Master your nutrition for optimal results',
+      items: [
+        { id: 'nutrition-blueprint', title: 'Nutrition Blueprint' },
+        { id: 'advanced-nutrition-strategies', title: 'Advanced Nutrition Strategies' },
+        { id: 'supplement-guide', title: 'Supplement Guide' }
+      ]
+    },
+    {
+      id: 'training',
+      title: '💪 Training',
+      description: 'Comprehensive training principles and programs',
+      items: [
+        { id: 'training-pyramid', title: 'Training Pyramid' },
+        { id: 'training-principles', title: 'Training Principles' },
+        { id: 'exercise-technique', title: 'Exercise Technique' },
+        { id: 'assistance-lifts', title: 'Assistance Lifts' },
+        { id: 'program-templates', title: 'Program Templates' },
+        { id: 'intensity-techniques', title: 'Intensity Techniques' },
+        { id: 'periodization-models', title: 'Periodization Models' }
+      ]
+    },
+    {
+      id: 'recovery',
+      title: '🧘 Recovery & Longevity',
+      description: 'Optimize recovery and long-term health',
+      items: [
+        { id: 'safety-and-warmups', title: 'Safety & Warmups' },
+        { id: 'mobility-and-flexibility', title: 'Mobility & Flexibility' },
+        { id: 'cardio-integration', title: 'Cardio Integration' },
+        { id: 'rehab-protocols', title: 'Rehab Protocols' },
+        { id: 'active-recovery', title: 'Active Recovery' },
+        { id: 'skincare-blueprint', title: 'Skincare Blueprint' }
+      ]
+    },
+    {
+      id: 'tracking',
+      title: '📊 Tracking & Adherence',
+      description: 'Monitor progress and maintain consistency',
+      items: [
+        { id: 'progress-and-plateaus', title: 'Progress & Plateaus' },
+        { id: 'troubleshooting-guide', title: 'Troubleshooting Guide' },
+        { id: 'performance-metrics', title: 'Performance Metrics' },
+        { id: 'behavior-and-adherence', title: 'Behavior & Adherence' }
+      ]
+    },
+    {
+      id: 'specialized',
+      title: '🎯 Specialized Guides',
+      description: 'Tailored approaches for specific needs',
+      items: [
+        { id: 'female-factor', title: 'Female Factor' },
+        { id: 'age-specific-training', title: 'Age-Specific Training' },
+        { id: 'lifestyle-adaptations', title: 'Lifestyle Adaptations' },
+        { id: 'home-gym-blueprint', title: 'Home Gym Blueprint' },
+        { id: 'tech-integration', title: 'Tech Integration' }
+      ]
+    },
+    {
+      id: 'guides',
+      title: '🚀 Quick Start Guide',
+      description: 'Get started with actionable steps',
+      items: [
+        { id: 'quick-start-guide', title: 'Quick Start Guide' }
+      ]
     }
-  }
-
-  isSectionExpanded(sectionId: string): boolean {
-    return this.expandedSections.has(sectionId);
-  }
-
-  expandAll() {
-    const currentSections = this.sectionsByTab[this.activeTab as keyof typeof this.sectionsByTab] || [];
-    currentSections.forEach(section => this.expandedSections.add(section));
-  }
-
-  collapseAll() {
-    const currentSections = this.sectionsByTab[this.activeTab as keyof typeof this.sectionsByTab] || [];
-    currentSections.forEach(section => this.expandedSections.delete(section));
-  }
+  ];
 
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -151,19 +135,15 @@ export class BlueprintComponent {
   scrollToSection(sectionId: string) {
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      element.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
     }
   }
 
-  getActiveTab(): { id: string; label: string; icon: string } {
-    return this.tabs.find(t => t.id === this.activeTab) || this.tabs[0];
+  toggleTableOfContents() {
+    this.showTableOfContents = !this.showTableOfContents;
   }
 
-  toggleMobileDropdown(): void {
-    this.isMobileDropdownOpen = !this.isMobileDropdownOpen;
-  }
-
-  getActiveSections(): string[] {
-    return this.sectionsByTab[this.activeTab as keyof typeof this.sectionsByTab] || [];
+  getAllSections() {
+    return this.sections.flatMap(category => category.items);
   }
 }
