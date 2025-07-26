@@ -22,6 +22,10 @@ export const PRIVATE_ROUTES: Routes = [
                 loadComponent: () => import('./analytics/analytics.component').then(m => m.AnalyticsComponent)
             },
             {
+                path: 'history',
+                loadComponent: () => import('./history/history.component').then(m => m.HistoryComponent)
+            },
+            {
                 path: 'diet',
                 loadComponent: () => import('./diet/diet.component').then(m => m.DietComponent)
             },      

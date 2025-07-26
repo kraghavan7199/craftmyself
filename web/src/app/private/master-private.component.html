@@ -47,6 +47,12 @@
         </svg>
       </a>
       
+      <a routerLink="/history" routerLinkActive="bg-accent text-accent-foreground" class="flex items-center justify-center h-12 w-12 rounded-lg transition-colors hover:bg-accent hover:text-accent-foreground">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </a>
+      
       <a routerLink="/diet" routerLinkActive="bg-accent text-accent-foreground" class="flex items-center justify-center h-12 w-12 rounded-lg transition-colors hover:bg-accent hover:text-accent-foreground">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 2v6 M10 2v6 M14 2v6 M18 2v6 M6 8h12 M12 8v12" />
@@ -98,7 +104,7 @@
 
   <!-- Mobile Bottom Navigation -->
   <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border z-30">
-    <div class="grid grid-cols-5 h-16 px-1">
+    <div class="grid grid-cols-6 h-16 px-1">
       <a routerLink="/home" routerLinkActive="text-primary bg-primary/10" class="flex flex-col items-center justify-center space-y-1 text-muted-foreground hover:text-foreground transition-colors rounded-lg m-1">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -111,6 +117,13 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
         </svg>
         <span class="text-xs font-medium">Stats</span>
+      </a>
+      
+      <a routerLink="/history" routerLinkActive="text-primary bg-primary/10" class="flex flex-col items-center justify-center space-y-1 text-muted-foreground hover:text-foreground transition-colors rounded-lg m-1">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="text-xs font-medium">History</span>
       </a>
       
       <a routerLink="/diet" routerLinkActive="text-primary bg-primary/10" class="flex flex-col items-center justify-center space-y-1 text-muted-foreground hover:text-foreground transition-colors rounded-lg m-1">

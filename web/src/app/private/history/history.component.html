@@ -1,0 +1,36 @@
+<app-page-wrapper>
+  <div class="min-h-screen bg-background">
+    <!-- Header -->
+    <div class="bg-card border-b border-border px-4 sm:px-6 lg:px-8 py-6">
+      <div class="max-w-7xl mx-auto">
+        <div class="flex items-center space-x-3">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          <div>
+            <h1 class="text-3xl font-bold text-foreground">History</h1>
+            <p class="text-muted-foreground">Track your workout and nutrition journey</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+      <!-- Calendar History Section -->
+      <div class="mb-8 animate-slide-right animate-delayed-1">
+        <app-calendar-history 
+          [(activeHistoryTab)]="activeHistoryTab" 
+          [userWorkoutHistory]="userWorkoutHistory"
+          [userMacrosHistory]="userMacrosHistory" 
+          [muscleGroups]="muscleGroups"
+          [isLoading]="isLoading.workoutHistory || isLoading.macrosHistory"
+          (monthChanged)="onCalendarMonthChanged($event)">
+        </app-calendar-history>
+      </div>
+    </main>
+  </div>
+</app-page-wrapper>
