@@ -9,16 +9,18 @@ export class ToastService {
   private toastsSubject = new Subject<Toast>();
   public toasts$ = this.toastsSubject.asObservable();
 
-  private createToast(message: string, type: ToastType) {
+  private createToast(message: string, type: ToastType, duration: number = 5000) {
     const toast: Toast = {
       id: Date.now().toString() + Math.random().toString(36).substr(2),
       message,
-      type
+      type,
+      duration
     };
     this.toastsSubject.next(toast);
   }
 
-  success(message: string) { this.createToast(message, 'success'); }
-  info(message: string)    { this.createToast(message, 'info'); }
-  error(message: string)   { this.createToast(message, 'error'); }
+  success(message: string, duration?: number) { this.createToast(message, 'success', duration); }
+  info(message: string, duration?: number)    { this.createToast(message, 'info', duration); }
+  error(message: string, duration?: number)   { this.createToast(message, 'error', duration); }
+  warning(message: string, duration?: number) { this.createToast(message, 'warning', duration); }
 }

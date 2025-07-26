@@ -353,4 +353,11 @@ export class HomeComponent {
     this.accordionStates = this.accordionStates.map(() => false);
   }
 
+  testToasts() {
+    this.toast.success('Success: Exercise added successfully!');
+    setTimeout(() => this.toast.info('Info: Remember to stay hydrated during your workout!'), 500);
+    setTimeout(() => this.toast.error('Error: Failed to save workout data!'), 1000);
+    setTimeout(() => this.toast.warning('Warning: This exercise may require a spotter!'), 1500);
+  }
+
 }
