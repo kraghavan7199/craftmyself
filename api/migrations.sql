@@ -915,7 +915,35 @@ DECLARE
     day_record RECORD;
     exercise_record RECORD;
     plan_id INT;
+    week_start_date DATE;
+    week_end_date DATE;
 BEGIN
+    -- Calculate the week range from the provided dates
+    SELECT 
+        MIN((value->>'date')::DATE) AS min_date,
+        MAX((value->>'date')::DATE) AS max_date
+    INTO week_start_date, week_end_date
+    FROM jsonb_array_elements(p_week_days) AS value;
+    
+    -- Ensure we have the full week range (Monday to Sunday)
+    week_start_date := DATE_TRUNC('week', week_start_date);
+    week_end_date := week_start_date + INTERVAL '6 days';
+    
+    -- Delete all existing workout plans and their exercises for this user within the week range
+    DELETE FROM workout.user_workout_plan_exercises 
+    WHERE user_workout_plan_id IN (
+        SELECT id 
+        FROM workout.user_workout_plans 
+        WHERE user_id = p_user_id 
+        AND date >= week_start_date 
+        AND date <= week_end_date
+    );
+    
+    DELETE FROM workout.user_workout_plans 
+    WHERE user_id = p_user_id 
+    AND date >= week_start_date 
+    AND date <= week_end_date;
+    
     -- Loop through each day in the week_days array
     FOR day_record IN 
         SELECT 
@@ -923,23 +951,10 @@ BEGIN
             value->'exercises' AS exercises
         FROM jsonb_array_elements(p_week_days) AS value
     LOOP
-        -- Insert or update the workout plan for this date
+        -- Insert the workout plan for this date
         INSERT INTO workout.user_workout_plans (user_id, date, updated_at)
         VALUES (p_user_id, day_record.plan_date, CURRENT_TIMESTAMP)
-        ON CONFLICT (user_id, date) 
-        DO UPDATE SET updated_at = CURRENT_TIMESTAMP
         RETURNING id INTO plan_id;
-        
-        -- If no conflict occurred, get the id
-        IF plan_id IS NULL THEN
-            SELECT id INTO plan_id 
-            FROM workout.user_workout_plans 
-            WHERE user_id = p_user_id AND date = day_record.plan_date;
-        END IF;
-        
-        -- Delete existing exercises for this plan
-        DELETE FROM workout.user_workout_plan_exercises 
-        WHERE user_workout_plan_id = plan_id;
         
         -- Insert new exercises
         FOR exercise_record IN 
