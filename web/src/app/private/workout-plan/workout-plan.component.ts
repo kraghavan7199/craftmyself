@@ -50,6 +50,7 @@ export class WorkoutPlanComponent {
   currentUserId: string = '';
   currentWeekStart: Date = new Date();
   isSelectingExercise = false;
+  isExerciseSelected = false;
 
   exerciseForm: FormGroup;
   currentWeekEnd = new Date();
@@ -187,13 +188,17 @@ export class WorkoutPlanComponent {
 
 
   filterExercises(searchText: string): void {
-    this.filteredExercises = []
+    if (!searchText || searchText.trim() === '') {
+      this.filteredExercises = [];
       this.showAutocomplete = false;
+      return;
+    }
 
-      if((!searchText || searchText.trim() === '') || this.isSelectingExercise) {
-       
-        return;
-      }
+    // Don't show autocomplete if an exercise is already selected
+    if (this.isExerciseSelected) {
+      this.showAutocomplete = false;
+      return;
+    }
 
     // Use server-side search instead of client-side filtering
     this.firestoreService.getExercises(0, 50, searchText).subscribe((response) => {
@@ -205,19 +210,29 @@ export class WorkoutPlanComponent {
   }
 
   selectExercise(exercise: Exercise): void {
-    this.isSelectingExercise = true;
+    this.isExerciseSelected = true;
     this.exerciseForm.get('exercise')?.setValue(exercise.name);
     this.exerciseForm.get('exerciseId')?.setValue(exercise.id);
     this.showAutocomplete = false;
     this.filteredExercises = [];
-  
   }
 
   onFocusExerciseInput(): void {
     const currentValue = this.exerciseForm.get('exercise')?.value;
-    if (currentValue) {
+    if (currentValue && !this.isExerciseSelected) {
       this.filterExercises(currentValue);
     }
+  }
+
+  onInputChange(): void {
+    // Reset the exercise selection flag when user types
+    this.isExerciseSelected = false;
+  }
+
+  resetExerciseForm(): void {
+    this.exerciseForm.reset();
+    this.isExerciseSelected = false;
+    this.showAutocomplete = false;
   }
 
   openExerciseModal(day: WorkoutDay) {
@@ -228,7 +243,7 @@ export class WorkoutPlanComponent {
 
     this.selectedDay = day;
     this.showExerciseModal = true;
-    this.exerciseForm.reset();
+    this.resetExerciseForm();
   }
 
   closeExerciseModal() {
@@ -236,6 +251,7 @@ export class WorkoutPlanComponent {
     this.selectedDay = null;
     this.exerciseForm.reset();
     this.showAutocomplete = false;
+    this.isExerciseSelected = false;
   }
 
   addExercise() {
@@ -266,7 +282,6 @@ export class WorkoutPlanComponent {
     this.toast.success(`Added ${newExercise.exerciseName} to ${this.selectedDay.name}`);
     this.closeExerciseModal();
     this.saveWorkoutPlan();
-    this.isSelectingExercise = false;
   }
 
   removeExercise(day: WorkoutDay, exerciseId: string) {
@@ -411,7 +426,7 @@ export class WorkoutPlanComponent {
       this.todaysWorkout.date = new Date();
       this.todaysWorkout.exercises = [newExercise];
       this.firestoreService.addUserWorkout(this.todaysWorkout).subscribe(_ => {
-        this.exerciseForm.reset();
+        this.resetExerciseForm();
         this.getTodaysWorkout();
         this.closeExerciseModal();
       });
@@ -420,7 +435,7 @@ export class WorkoutPlanComponent {
 
     this.todaysWorkout.exercises.push(newExercise);
     this.firestoreService.updateWorkout(this.todaysWorkout.id, this.todaysWorkout).subscribe(_ => {
-      this.exerciseForm.reset();
+      this.resetExerciseForm();
       this.toast.success('Added Exercise To Workout');
       this.getTodaysWorkout();
       this.closeExerciseModal();
