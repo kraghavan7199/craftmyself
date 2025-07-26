@@ -13,7 +13,7 @@
   </div>
 
   <div *ngIf="weeklySummary.length > 0 && weeklySummary[weeklySummary.length -1].muscleGroupSets; else noSetsData">
-    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 3xl:grid-cols-10 4xl:grid-cols-12 gap-4">
       <div *ngFor="let muscle of muscleGroups" 
            class="bg-muted/50 rounded-lg p-4 text-center hover:bg-muted transition-colors">
         <div class="text-sm text-foreground mb-1">{{ muscle.name }}</div>
