@@ -43,7 +43,7 @@
           <label for="exercise" class="block text-sm font-medium text-foreground mb-3">Exercise Name</label>
           <div class="relative z-20">
             <input type="text" id="exercise" formControlName="exercise" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              placeholder="Search or type exercise name..." (focus)="onFocusExerciseInput()" autocomplete="off">
+              placeholder="Search or type exercise name..." (focus)="onFocusExerciseInput()" (input)="onInputChange()" autocomplete="off">
 
             <div *ngIf="showAutocomplete && !showPRModal && !showDeleteModal && !showCongratsModal"
               class="absolute z-30 mt-2 w-full bg-popover border border-border rounded-lg shadow-lg max-h-64 overflow-auto">

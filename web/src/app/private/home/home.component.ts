@@ -1,5 +1,4 @@
 import { Component } from "@angular/core";
-import { RouterOutlet } from "@angular/router";
 import { Store } from '@ngrx/store';
 import { FirestoreService } from "../../services/firestore.service";
 import { Exercise } from "../../shared/interfaces/Exercise";
@@ -15,7 +14,7 @@ import { PageWrapperComponent } from "../../shared/animations";
 
 @Component({
     selector: 'app-home',
-    imports: [RouterOutlet, FormsModule, ReactiveFormsModule, CommonModule, PageWrapperComponent],
+    imports: [FormsModule, ReactiveFormsModule, CommonModule, PageWrapperComponent],
     templateUrl: './home.component.html'
 })
 export class HomeComponent {
@@ -40,6 +39,7 @@ export class HomeComponent {
   showDeleteModal = false;
   exerciseToDelete: ExerciseEntry | null = null;
   autocompletePosition = { top: 0, left: 0, width: 0 };
+  isExerciseSelected = false;
   constructor(private firestoreService: FirestoreService, private fb: FormBuilder, private store: Store, private toast: ToastService) {
     this.exerciseForm = this.fb.group({
       exercise: ['', Validators.required],
@@ -89,6 +89,12 @@ export class HomeComponent {
       return;
     }
 
+    // Don't show autocomplete if an exercise is already selected
+    if (this.isExerciseSelected) {
+      this.showAutocomplete = false;
+      return;
+    }
+
     // Use server-side search instead of client-side filtering
     this.firestoreService.getExercises(0, 50, searchText).subscribe((response) => {
       if (response && response.data) {
@@ -99,6 +105,7 @@ export class HomeComponent {
   }
 
   selectExercise(exercise: Exercise): void {
+    this.isExerciseSelected = true;
     this.exerciseForm.get('exercise')?.setValue(exercise.name);
     this.exerciseForm.get('exerciseId')?.setValue(exercise.id);
     this.showAutocomplete = false;
@@ -106,9 +113,20 @@ export class HomeComponent {
 
   onFocusExerciseInput(): void {
     const currentValue = this.exerciseForm.get('exercise')?.value;
-    if (currentValue) {
+    if (currentValue && !this.isExerciseSelected) {
       this.filterExercises(currentValue);
     }
+  }
+
+  onInputChange(): void {
+    // Reset the exercise selection flag when user types
+    this.isExerciseSelected = false;
+  }
+
+  resetExerciseForm(): void {
+    this.exerciseForm.reset();
+    this.isExerciseSelected = false;
+    this.showAutocomplete = false;
   }
 
   getTodaysWorkout() {
@@ -199,7 +217,7 @@ export class HomeComponent {
       this.todaysWorkout.date = new Date();
       this.todaysWorkout.exercises = [newExercise];
       this.firestoreService.addUserWorkout(this.todaysWorkout).subscribe(_ => {
-        this.exerciseForm.reset();
+        this.resetExerciseForm();
         this.getTodaysWorkout();
       })
       return;
@@ -207,7 +225,7 @@ export class HomeComponent {
     this.todaysWorkout.exercises.push(newExercise);
 
     this.firestoreService.updateWorkout(this.todaysWorkout.id, this.todaysWorkout).subscribe(_ => {
-      this.exerciseForm.reset();
+      this.resetExerciseForm();
       this.toast.success('Added Exercise To Workout')
       this.getTodaysWorkout()
     })
@@ -236,7 +254,7 @@ export class HomeComponent {
       this.newSetWeight[exercise.exerciseId] = null;
       this.todaysWorkout.userId = this.currentUserId;
       this.firestoreService.updateWorkout(this.todaysWorkout.id, this.todaysWorkout).subscribe(_ => {
-        this.exerciseForm.reset();
+        this.resetExerciseForm();
         this.checkForNewWeightPR(exercise.exerciseId, weight, exercise.exerciseName);
         this.getTodaysWorkout()
       })
@@ -252,7 +270,7 @@ export class HomeComponent {
       exercise.sets = exercise.sets.filter(set => set.id !== setId)
       this.todaysWorkout.userId = this.currentUserId;
       this.firestoreService.updateWorkout(this.todaysWorkout.id, this.todaysWorkout).subscribe(_ => {
-        this.exerciseForm.reset();
+        this.resetExerciseForm();
         this.getTodaysWorkout()
       })
     } catch (error) {
