@@ -290,7 +290,11 @@ export class HomeComponent implements OnDestroy {
   }
   deleteSet(exercise: ExerciseEntry, setId: string) {
     try {
-      exercise.sets = exercise.sets.filter(set => set.id !== setId)
+      exercise.sets = exercise.sets.filter(set => set.id !== setId);
+      
+      // Always recalculate PR after deleting a set, whether sets remain or not
+      this.recalculateExercisePR(exercise);
+      
       this.todaysWorkout.userId = this.currentUserId;
       this.firestoreService.updateWorkout(this.todaysWorkout.id, this.todaysWorkout).subscribe(_ => {
         this.resetExerciseForm();
@@ -379,6 +383,29 @@ export class HomeComponent implements OnDestroy {
   closeCongratsModal() {
     this.showCongratsModal = false;
     document.body.style.overflow = 'auto';
+  }
+
+  // Method to recalculate exercise PR after set deletion
+  recalculateExercisePR(exercise: ExerciseEntry) {
+    // Find the maximum weight from remaining sets in current workout
+    const currentMaxWeight = exercise.sets.length > 0 
+      ? Math.max(...exercise.sets.map(set => set.weight))
+      : 0;
+    
+    // For the placeholder display, we need to compare current max with historical PR
+    this.firestoreService.getUserExerciseHistory(exercise.exerciseId, this.currentUserId).subscribe(history => {
+      const historicalPR = history?.maxWeightPR || 0;
+      
+      // If we have sets remaining, check if any of them is still a PR
+      if (currentMaxWeight > 0) {
+        // Keep the higher value between current session max and historical PR
+        // This ensures we don't show a lower PR just because we deleted a set
+        this.exercisePRData[exercise.exerciseId] = Math.max(currentMaxWeight, historicalPR);
+      } else {
+        // If no sets remain, fall back to historical PR
+        this.exercisePRData[exercise.exerciseId] = historicalPR > 0 ? historicalPR : null;
+      }
+    });
   }
 
   // Add this method to fetch PR data for an exercise
