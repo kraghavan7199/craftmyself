@@ -100,6 +100,15 @@
         <!-- Expand/Collapse Buttons -->
         @if(todaysWorkout.exercises && todaysWorkout.exercises.length > 0) {
         <div class="flex items-center space-x-2">
+          <button 
+            (click)="openWeekLogModal()"
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3 space-x-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-6a2 2 0 01-2-2z"></path>
+            </svg>
+            <span class="hidden sm:inline">Week Log</span>
+            <span class="sm:hidden">Week</span>
+          </button>
           <button (click)="expandAllAccordions()"
             class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 space-x-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -588,6 +597,35 @@
           </button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Week Log Modal -->
+<div *ngIf="showWeekLogModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" (click)="closeWeekLogModal()">
+  <!-- Background overlay -->
+  <div class="fixed inset-0 bg-black bg-opacity-75 transition-opacity backdrop-blur-sm"></div>
+  
+  <!-- Modal panel -->
+  <div 
+    class="relative z-10 bg-card border border-border rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col"
+    (click)="$event.stopPropagation()">
+    
+    <!-- Fixed Header -->
+    <div class="flex items-center justify-between p-6 border-b border-border bg-card flex-shrink-0">
+      <h2 class="text-xl font-semibold text-foreground">Current Week Log</h2>
+      <button 
+        (click)="closeWeekLogModal()"
+        class="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Scrollable Content -->
+    <div class="flex-1 overflow-y-auto p-6">
+      <app-week-log [userId]="currentUserId"></app-week-log>
     </div>
   </div>
 </div>

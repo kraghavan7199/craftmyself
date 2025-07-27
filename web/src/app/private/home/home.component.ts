@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnDestroy, HostListener } from "@angular/core";
 import { Store } from '@ngrx/store';
 import { FirestoreService } from "../../services/firestore.service";
 import { Exercise } from "../../shared/interfaces/Exercise";
@@ -11,13 +11,14 @@ import { ToastService } from "../../services/toast.service";
 import { UserExerciseSummary } from "../../shared/interfaces/UserExerciseSummary";
 import { debounceTime } from 'rxjs/operators';
 import { PageWrapperComponent } from "../../shared/animations";
+import { WeekLogComponent } from "../../shared/components/week-log.component";
 
 @Component({
     selector: 'app-home',
-    imports: [FormsModule, ReactiveFormsModule, CommonModule, PageWrapperComponent],
+    imports: [FormsModule, ReactiveFormsModule, CommonModule, PageWrapperComponent, WeekLogComponent],
     templateUrl: './home.component.html'
 })
-export class HomeComponent {
+export class HomeComponent implements OnDestroy {
   selectedExerciseHistory: UserExerciseSummary = {} as UserExerciseSummary;
   exercises: Exercise[] = [];
   exerciseForm: FormGroup;
@@ -41,6 +42,7 @@ export class HomeComponent {
   autocompletePosition = { top: 0, left: 0, width: 0 };
   isExerciseSelected = false;
   exercisePRData: { [key: string]: number | null } = {};
+  showWeekLogModal = false;
   constructor(private firestoreService: FirestoreService, private fb: FormBuilder, private store: Store, private toast: ToastService) {
     this.exerciseForm = this.fb.group({
       exercise: ['', Validators.required],
@@ -163,11 +165,15 @@ export class HomeComponent {
   openDeleteModal(exercise: ExerciseEntry) {
     this.exerciseToDelete = exercise;
     this.showDeleteModal = true;
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
   }
 
   closeDeleteModal() {
     this.showDeleteModal = false;
     this.exerciseToDelete = null;
+    // Restore body scroll when modal is closed
+    document.body.style.overflow = 'auto';
   }
 
   confirmDeleteExercise() {
@@ -302,6 +308,8 @@ export class HomeComponent {
     this.selectedExercise = exercise;
     this.getUserExerciseHistory()
     this.showPRModal = true;
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
   }
 
   getUserExerciseHistory() {
@@ -319,6 +327,8 @@ export class HomeComponent {
   closePRModal() {
     this.showPRModal = false;
     this.selectedExercise = null;
+    // Restore body scroll when modal is closed
+    document.body.style.overflow = 'auto';
   }
 
   // Check for new weight PR
@@ -329,6 +339,8 @@ export class HomeComponent {
         this.newPRExerciseName = exerciseName;
         this.hasWeightPR = true;
         this.showCongratsModal = true;
+        // Prevent body scroll when modal is open
+        document.body.style.overflow = 'hidden';
       }
     });
   }
@@ -339,6 +351,8 @@ export class HomeComponent {
     this.newPRWeight = 0;
     this.newPRExerciseName = '';
     this.hasWeightPR = false;
+    // Restore body scroll when modal is closed
+    document.body.style.overflow = 'auto';
   }
 
   // Add this method to fetch PR data for an exercise
@@ -387,6 +401,42 @@ export class HomeComponent {
     setTimeout(() => this.toast.info('Info: Remember to stay hydrated during your workout!'), 500);
     setTimeout(() => this.toast.error('Error: Failed to save workout data!'), 1000);
     setTimeout(() => this.toast.warning('Warning: This exercise may require a spotter!'), 1500);
+  }
+
+  openWeekLogModal(): void {
+    this.showWeekLogModal = true;
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeWeekLogModal(): void {
+    this.showWeekLogModal = false;
+    // Restore body scroll when modal is closed
+    document.body.style.overflow = 'auto';
+  }
+
+  ngOnDestroy(): void {
+    // Ensure body scroll is restored when component is destroyed
+    document.body.style.overflow = 'auto';
+  }
+
+  // Helper method to check if any modal is currently open
+  private isAnyModalOpen(): boolean {
+    return this.showWeekLogModal || this.showPRModal || this.showDeleteModal || this.showCongratsModal;
+  }
+
+  // Handle Escape key to close modals
+  @HostListener('document:keydown.escape', ['$event'])
+  onEscapeKey(event: KeyboardEvent): void {
+    if (this.showWeekLogModal) {
+      this.closeWeekLogModal();
+    } else if (this.showPRModal) {
+      this.closePRModal();
+    } else if (this.showDeleteModal) {
+      this.closeDeleteModal();
+    } else if (this.showCongratsModal) {
+      this.closeCongratsModal();
+    }
   }
 
 }
