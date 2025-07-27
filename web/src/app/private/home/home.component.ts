@@ -30,7 +30,6 @@ export class HomeComponent implements OnDestroy {
   newSetReps: { [key: string]: number | null } = {};
   todaysDate: Date = new Date();
   showPRModal = false;
-  showCongratsModal = false;
   newPRWeight = 0;
   newPRExerciseName = '';
   hasWeightPR = false;
@@ -43,6 +42,9 @@ export class HomeComponent implements OnDestroy {
   isExerciseSelected = false;
   exercisePRData: { [key: string]: number | null } = {};
   showWeekLogModal = false;
+  showCongratsModal = false;
+  congratsMessage = '';
+  newPRDetails = { exerciseName: '', weight: 0, previousPR: 0 };
   constructor(private firestoreService: FirestoreService, private fb: FormBuilder, private store: Store, private toast: ToastService) {
     this.exerciseForm = this.fb.group({
       exercise: ['', Validators.required],
@@ -265,6 +267,10 @@ export class HomeComponent implements OnDestroy {
         this.toast.info('Enter Valid Weight');
         return;
       }
+
+      // Check if this is a new PR before adding the set
+      this.checkForNewPR(exercise, weight);
+
       this.isLoading.workoutLog = true;
       const newSet = { id: uuidv4(), reps: reps, weight: weight, timestamp: new Date() };
       exercise.sets.push(newSet)
@@ -273,7 +279,6 @@ export class HomeComponent implements OnDestroy {
       this.todaysWorkout.userId = this.currentUserId;
       this.firestoreService.updateWorkout(this.todaysWorkout.id, this.todaysWorkout).subscribe(_ => {
         this.resetExerciseForm();
-        this.checkForNewWeightPR(exercise.exerciseId, weight, exercise.exerciseName);
         this.getTodaysWorkout()
       })
 
@@ -331,27 +336,48 @@ export class HomeComponent implements OnDestroy {
     document.body.style.overflow = 'auto';
   }
 
-  // Check for new weight PR
-  checkForNewWeightPR(exerciseId: string, newWeight: number, exerciseName: string) {
-    this.firestoreService.getUserExerciseHistory(exerciseId, this.currentUserId).subscribe(history => {
-      if (history && history.maxWeightPR && newWeight > history.maxWeightPR) {
-        this.newPRWeight = newWeight;
-        this.newPRExerciseName = exerciseName;
-        this.hasWeightPR = true;
-        this.showCongratsModal = true;
-        // Prevent body scroll when modal is open
-        document.body.style.overflow = 'hidden';
+  // Check for new PR and show congratulations
+  checkForNewPR(exercise: ExerciseEntry, newWeight: number) {
+    const currentPR = this.exercisePRData[exercise.exerciseId];
+    
+    if (!currentPR || newWeight > currentPR) {
+      // This is a new PR!
+      this.newPRDetails = {
+        exerciseName: exercise.exerciseName,
+        weight: newWeight,
+        previousPR: currentPR || 0
+      };
+      
+      if (currentPR) {
+        this.congratsMessage = `🎉 NEW PERSONAL RECORD! 🎉`;
+      } else {
+        this.congratsMessage = `🎉 FIRST PERSONAL RECORD! 🎉`;
       }
-    });
+      
+      // Update the PR data immediately
+      this.exercisePRData[exercise.exerciseId] = newWeight;
+      
+      // Add celebration sound effect here if desired
+      // this.playCelebrationSound();
+      
+      // Show congratulations modal with a slight delay for better UX
+      setTimeout(() => {
+        this.showCongratsModal = true;
+        document.body.style.overflow = 'hidden';
+        
+        // Auto-close the modal after 5 seconds (optional)
+        setTimeout(() => {
+          if (this.showCongratsModal) {
+            this.closeCongratsModal();
+          }
+        }, 5000);
+      }, 500);
+    }
   }
 
   // Method to close congratulations modal
   closeCongratsModal() {
     this.showCongratsModal = false;
-    this.newPRWeight = 0;
-    this.newPRExerciseName = '';
-    this.hasWeightPR = false;
-    // Restore body scroll when modal is closed
     document.body.style.overflow = 'auto';
   }
 
@@ -422,7 +448,7 @@ export class HomeComponent implements OnDestroy {
 
   // Helper method to check if any modal is currently open
   private isAnyModalOpen(): boolean {
-    return this.showWeekLogModal || this.showPRModal || this.showDeleteModal || this.showCongratsModal;
+    return this.showWeekLogModal || this.showPRModal || this.showDeleteModal ;
   }
 
   // Handle Escape key to close modals
@@ -434,8 +460,6 @@ export class HomeComponent implements OnDestroy {
       this.closePRModal();
     } else if (this.showDeleteModal) {
       this.closeDeleteModal();
-    } else if (this.showCongratsModal) {
-      this.closeCongratsModal();
     }
   }
 

@@ -45,7 +45,7 @@
             <input type="text" id="exercise" formControlName="exercise" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Search or type exercise name..." (focus)="onFocusExerciseInput()" (input)="onInputChange()" autocomplete="off">
 
-            <div *ngIf="showAutocomplete && !showPRModal && !showDeleteModal && !showCongratsModal"
+            <div *ngIf="showAutocomplete && !showPRModal && !showDeleteModal"
               class="absolute z-30 mt-2 w-full bg-popover border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
               <div class="p-2">
                 <div *ngFor="let exercise of filteredExercises" (click)="selectExercise(exercise)"
@@ -486,61 +486,6 @@
     </div>
   </div>
 
-  <!-- Combined Congratulations Modal -->
-  <div *ngIf="showCongratsModal" class="fixed inset-0 z-[10000] overflow-y-auto" (click)="closeCongratsModal()">
-    <div class="flex items-center justify-center min-h-screen pt-4 px-3 sm:px-4 pb-20 text-center sm:block sm:p-0">
-      <!-- Background overlay -->
-      <div class="fixed inset-0 bg-black bg-opacity-75 transition-opacity"></div>
-
-      <!-- Modal panel -->
-      <div
-        class="inline-block align-bottom bg-gradient-to-br rounded-2xl px-6 sm:px-8 pt-6 sm:pt-8 pb-6 sm:pb-8 text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full mx-2 sm:mx-0 border from-gray-900 to-gray-800 border-yellow-400 relative z-10"
-        (click)="$event.stopPropagation()">
-
-        <!-- Celebration Animation -->
-        <div class="text-center mb-6">
-          <div class="relative inline-block">
-            <div
-              class="w-20 h-20 mx-auto mb-4 rounded-full bg-white/20 flex items-center justify-center animate-bounce">
-              <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
-            </div>
-
-            <div class="absolute -top-2 -left-2 w-4 h-4 bg-white rounded-full opacity-80 animate-ping"></div>
-            <div class="absolute -bottom-2 -right-2 w-3 h-3 bg-white rounded-full opacity-60 animate-ping"
-              style="animation-delay: 0.5s;"></div>
-            <div class="absolute top-0 -right-4 w-2 h-2 bg-white rounded-full opacity-40 animate-ping"
-              style="animation-delay: 1s;"></div>
-          </div>
-
-          <!-- Dynamic Title -->
-          <h2 class="text-3xl font-bold text-white mb-2">🎉 NEW PR! 🎉</h2>
-          <p class="text-xl text-white/90 mb-1">Congratulations!</p>
-          <p class="text-white/80 text-sm">You just hit a new personal record!</p>
-        </div>
-
-        <!-- Weight PR Section -->
-        <div class="bg-white/20 rounded-xl p-6 mb-4 text-center">
-          <p class="text-white/90 text-sm mb-2">{{newPRExerciseName}}</p>
-          <div class="text-4xl font-bold text-white mb-1">{{newPRWeight}} kgs</div>
-          <p class="text-white/80 text-sm">New Weight Personal Record</p>
-        </div>
-
-        <div class="text-center mb-6">
-          <p class="text-white/90 text-sm font-medium">Keep pushing your limits!</p>
-          <p class="text-white/70 text-xs">Every rep counts towards your goals</p>
-        </div>
-
-        <!-- Close Button -->
-        <button (click)="closeCongratsModal()"
-          class="w-full bg-white/20 hover:bg-white/30 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 border border-white/30">
-          <span>Continue Training</span>
-        </button>
-      </div>
-    </div>
-  </div>
 
   <!-- Delete Confirmation Modal -->
   <div *ngIf="showDeleteModal" class="fixed inset-0 z-[10000] overflow-y-auto" (click)="closeDeleteModal()">
@@ -597,6 +542,83 @@
           </button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Congratulations Modal -->
+<div *ngIf="showCongratsModal" class="fixed inset-0 z-[10000] overflow-y-auto" (click)="closeCongratsModal()">
+  <div class="flex items-center justify-center min-h-screen pt-4 px-3 sm:px-4 pb-20 text-center sm:block sm:p-0">
+    <!-- Background overlay with blur -->
+    <div class="fixed inset-0 bg-black/80 transition-opacity backdrop-blur-sm"></div>
+
+    <!-- Modal panel with celebration animation -->
+    <div
+      class="inline-block align-bottom bg-gradient-to-br from-yellow-400/10 via-orange-400/10 to-red-400/10 border-2 border-yellow-400/30 rounded-2xl px-6 sm:px-8 pt-6 sm:pt-8 pb-6 sm:pb-8 text-center overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full mx-2 sm:mx-0 relative z-10 animate-bounce"
+      (click)="$event.stopPropagation()"
+      style="animation-duration: 0.6s; animation-iteration-count: 3;">
+
+      <!-- Celebration Effects -->
+      <div class="absolute inset-0 pointer-events-none">
+        <!-- Confetti elements -->
+        <div class="absolute top-4 left-4 w-3 h-3 bg-yellow-400 rounded-full animate-ping" style="animation-delay: 0.1s;"></div>
+        <div class="absolute top-6 right-6 w-2 h-2 bg-orange-400 rounded-full animate-ping" style="animation-delay: 0.3s;"></div>
+        <div class="absolute bottom-8 left-8 w-2 h-2 bg-red-400 rounded-full animate-ping" style="animation-delay: 0.5s;"></div>
+        <div class="absolute bottom-6 right-8 w-3 h-3 bg-purple-400 rounded-full animate-ping" style="animation-delay: 0.7s;"></div>
+        <div class="absolute top-1/2 left-2 w-2 h-2 bg-blue-400 rounded-full animate-ping" style="animation-delay: 0.9s;"></div>
+        <div class="absolute top-1/3 right-4 w-2 h-2 bg-green-400 rounded-full animate-ping" style="animation-delay: 1.1s;"></div>
+      </div>
+
+      <!-- Trophy Icon with glow effect -->
+      <div class="mb-6 relative">
+        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center relative animate-pulse">
+          <div class="absolute inset-0 bg-yellow-400 rounded-full animate-ping opacity-30"></div>
+          <svg class="w-12 h-12 text-white relative z-10" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Congratulations Message -->
+      <div class="mb-6">
+        <h2 class="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 bg-clip-text text-transparent mb-4 animate-pulse">
+          {{ congratsMessage }}
+        </h2>
+        <p class="text-xl font-semibold text-foreground mb-2">
+          {{ newPRDetails.exerciseName }}
+        </p>
+        <div class="text-lg text-muted-foreground">
+          <span class="block">New PR: <span class="font-bold text-yellow-400">{{ newPRDetails.weight }}kg</span></span>
+          <span *ngIf="newPRDetails.previousPR > 0" class="block text-sm">
+            Previous: {{ newPRDetails.previousPR }}kg
+            <span class="text-green-400 font-semibold">
+              (+{{ newPRDetails.weight - newPRDetails.previousPR }}kg improvement!)
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Motivational Message -->
+      <div class="mb-8">
+        <p class="text-foreground font-medium text-lg mb-2">
+          Outstanding Achievement! 💪
+        </p>
+        <p class="text-muted-foreground text-sm">
+          You're getting stronger every day. Keep pushing those limits!
+        </p>
+      </div>
+
+      <!-- Close Button -->
+      <button 
+        (click)="closeCongratsModal()"
+        class="w-full bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+        <span class="flex items-center justify-center space-x-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+          </svg>
+          <span>Keep Going Strong!</span>
+        </span>
+      </button>
     </div>
   </div>
 </div>
